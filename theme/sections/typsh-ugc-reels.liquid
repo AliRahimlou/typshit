@@ -9,12 +9,42 @@
 
       <div class="typsh-commerce-reels__track" role="list">
         {% for block in section.blocks %}
+          {% liquid
+            assign reel_product = blank
+            assign reel_collection = blank
+            assign reel_collection_image = blank
+            assign reel_link = block.settings.link | default: ''
+
+            if block.settings.product != blank
+              assign reel_product = all_products[block.settings.product]
+            elsif reel_link contains '/products/'
+              assign reel_product_handle = reel_link | split: '/products/' | last | split: '#' | first | split: '?' | first
+              assign reel_product = all_products[reel_product_handle]
+            elsif reel_link contains '/collections/'
+              assign reel_collection_handle = reel_link | split: '/collections/' | last | split: '#' | first | split: '?' | first
+              assign reel_collection = collections[reel_collection_handle]
+              if reel_collection != blank
+                if reel_collection.featured_image != blank
+                  assign reel_collection_image = reel_collection.featured_image
+                elsif reel_collection.products_count > 0
+                  assign reel_product = reel_collection.products.first
+                endif
+              endif
+            endif
+          %}
           <article class="typsh-commerce-reel" role="listitem" {{ block.shopify_attributes }}>
             <div class="typsh-commerce-reel__media">
               {% if block.settings.image != blank %}
                 {{ block.settings.image | image_url: width: 900 | image_tag: widths: '320, 480, 640, 900', sizes: '280px', loading: 'lazy', alt: block.settings.title }}
+              {% elsif reel_product != blank and reel_product.featured_media != blank %}
+                {{ reel_product.featured_media.preview_image | image_url: width: 900 | image_tag: widths: '320, 480, 640, 900', sizes: '280px', loading: 'lazy', alt: reel_product.title }}
+              {% elsif reel_collection_image != blank %}
+                {{ reel_collection_image | image_url: width: 900 | image_tag: widths: '320, 480, 640, 900', sizes: '280px', loading: 'lazy', alt: reel_collection.title }}
               {% else %}
-                <div class="typsh-commerce-empty" style="display:grid;place-items:center;height:100%;">UGC frame</div>
+                <div class="typsh-commerce-empty typsh-commerce-empty--media">
+                  <span class="typsh-commerce-empty__eyebrow">{{ block.settings.badge | default: 'Story' }}</span>
+                  <span class="typsh-commerce-empty__title">{{ block.settings.title }}</span>
+                </div>
               {% endif %}
             </div>
             <div class="typsh-commerce-grid" style="gap: 10px;">
@@ -67,6 +97,11 @@
           "type": "image_picker",
           "id": "image",
           "label": "Image"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Fallback product"
         },
         {
           "type": "text",

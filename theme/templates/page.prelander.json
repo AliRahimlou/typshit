@@ -47,10 +47,12 @@
         "ugc_1": {
           "type": "reel",
           "settings": {
+            "product": "handheld-clothes-steamer",
             "badge": "Hook",
             "author": "@typsh.it",
             "title": "Use the pre-lander to reinforce the ad promise",
             "caption": "This keeps the journey consistent between the creative, landing page, and final product detail page.",
+            "link": "/products/handheld-clothes-steamer",
             "link_label": "Shop now"
           }
         }

@@ -103,6 +103,29 @@
   font: 500 0.98rem/1.7 "Space Grotesk", "Avenir Next", sans-serif;
 }
 
+.typsh-commerce-empty--media {
+  display: grid;
+  align-content: end;
+  gap: 10px;
+  min-height: 100%;
+  padding: 18px;
+  background:
+    linear-gradient(180deg, rgba(59, 130, 246, 0.12), transparent 42%),
+    linear-gradient(180deg, #1d2532, #10151d);
+}
+
+.typsh-commerce-empty__eyebrow {
+  color: #d7e6ff;
+  font: 700 0.76rem/1 "Space Grotesk", "Avenir Next", sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.typsh-commerce-empty__title {
+  color: var(--typsh-commerce-text);
+  font: 700 1.14rem/1.15 "Space Grotesk", "Avenir Next", sans-serif;
+}
+
 .typsh-commerce-actions {
   display: flex;
   flex-wrap: wrap;

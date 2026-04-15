@@ -45,34 +45,37 @@
         "ugc_1": {
           "type": "reel",
           "settings": {
+            "product": "handheld-clothes-steamer",
             "badge": "UGC",
             "author": "@launchcreator",
             "title": "Show the main before-and-after use case",
             "caption": "This should reinforce a practical benefit in the first glance, especially for paid-social traffic landing on the homepage.",
-            "link": "/collections/best-sellers",
-            "link_label": "Shop best sellers"
+            "link": "/products/handheld-clothes-steamer",
+            "link_label": "Shop the steamer"
           }
         },
         "ugc_2": {
           "type": "reel",
           "settings": {
+            "product": "ring-light",
             "badge": "Creator setup",
             "author": "@deskflow",
             "title": "Use creator-style vertical crops for tech products",
             "caption": "The goal is not novelty. It is faster desire and lower effort understanding on mobile.",
-            "link": "/collections/creator-setup",
-            "link_label": "Shop creator setup"
+            "link": "/products/ring-light",
+            "link_label": "Shop the ring light"
           }
         },
         "ugc_3": {
           "type": "reel",
           "settings": {
+            "product": "magnetic-screen-door",
             "badge": "Home fixes",
             "author": "@homeupgrade",
             "title": "Context makes practical products feel more premium",
             "caption": "Use this slot to make utility feel desirable instead of purely functional.",
-            "link": "/collections/home-fixes",
-            "link_label": "Shop home fixes"
+            "link": "/products/magnetic-screen-door",
+            "link_label": "Shop the screen door"
           }
         }
       },

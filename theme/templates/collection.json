@@ -15,20 +15,24 @@
         "ugc_1": {
           "type": "reel",
           "settings": {
+            "product": "handheld-clothes-steamer",
             "badge": "Collection edit",
             "author": "@typsh.it",
             "title": "Highlight one product benefit per reel",
             "caption": "The best collection proof rows work like soft retargeting: quick, visual, and easy to scan.",
+            "link": "/products/handheld-clothes-steamer",
             "link_label": "Shop now"
           }
         },
         "ugc_2": {
           "type": "reel",
           "settings": {
+            "product": "ring-light",
             "badge": "UGC",
             "author": "@creatorreview",
             "title": "Keep the focus on context, not just aesthetics",
             "caption": "Products should feel useful in a real routine, not like anonymous grid fillers.",
+            "link": "/products/ring-light",
             "link_label": "View more"
           }
         }

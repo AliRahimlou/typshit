@@ -67,30 +67,36 @@
         "ugc_1": {
           "type": "reel",
           "settings": {
+            "product": "handheld-clothes-steamer",
             "badge": "Creator cut",
             "author": "@launchcreator",
             "title": "Show the product doing one obvious job really well",
             "caption": "Use short-form style captions and vertical media crops so the section feels shareable and native to paid-social traffic.",
+            "link": "/products/handheld-clothes-steamer",
             "link_label": "View product"
           }
         },
         "ugc_2": {
           "type": "reel",
           "settings": {
+            "product": "ring-light",
             "badge": "UGC",
             "author": "@realcustomer",
             "title": "Use-case media beats generic review stars",
             "caption": "Keep the proof visual and practical: before-and-after, reaction, routine fit, or context shot.",
+            "link": "/products/ring-light",
             "link_label": "See details"
           }
         },
         "ugc_3": {
           "type": "reel",
           "settings": {
+            "product": "wireless-charging-station",
             "badge": "As seen in feed",
             "author": "@typsh.it",
             "title": "Design this like a mini swipeable reel row",
             "caption": "It should feel closer to content discovery than a legacy testimonial carousel.",
+            "link": "/products/wireless-charging-station",
             "link_label": "Shop now"
           }
         }
