@@ -1,0 +1,67 @@
+{
+  "sections": {
+    "main": {
+      "type": "typsh-prelander",
+      "settings": {
+        "primary_url": "/collections/best-sellers",
+        "secondary_url": "/pages/faq"
+      },
+      "blocks": {
+        "proof_1": {
+          "type": "proof",
+          "settings": {
+            "stat": "Clarity first",
+            "title": "Tell the shopper what the product is immediately",
+            "copy": "A strong pre-lander removes ambiguity fast instead of copying a blog article or a long-form advertorial pattern."
+          }
+        },
+        "proof_2": {
+          "type": "proof",
+          "settings": {
+            "stat": "Trust in context",
+            "title": "Place proof near the action",
+            "copy": "Use concise benefit framing, one featured product, and a clear next click so the page still feels lightweight."
+          }
+        },
+        "proof_3": {
+          "type": "proof",
+          "settings": {
+            "stat": "Mobile-native",
+            "title": "Design for paid-social thumbs, not desktop habits",
+            "copy": "Spacing, CTAs, and media should all feel comfortable for one-handed scanning and quick decision-making."
+          }
+        }
+      },
+      "block_order": [
+        "proof_1",
+        "proof_2",
+        "proof_3"
+      ]
+    },
+    "ugc": {
+      "type": "typsh-ugc-reels",
+      "settings": {
+        "heading": "Layer in creator-style proof before the PDP"
+      },
+      "blocks": {
+        "ugc_1": {
+          "type": "reel",
+          "settings": {
+            "badge": "Hook",
+            "author": "@typsh.it",
+            "title": "Use the pre-lander to reinforce the ad promise",
+            "caption": "This keeps the journey consistent between the creative, landing page, and final product detail page.",
+            "link_label": "Shop now"
+          }
+        }
+      },
+      "block_order": [
+        "ugc_1"
+      ]
+    }
+  },
+  "order": [
+    "main",
+    "ugc"
+  ]
+}

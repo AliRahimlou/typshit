@@ -1,5 +1,7 @@
 # typsh-it-shopify-agent-server
 
+The repo now includes Shopify CLI as a dev dependency for theme automation. Backend work still runs on Node 18+, but the theme automation scripts auto-switch to Node 20 through `nvm` because current Shopify CLI releases require Node 20+.
+
 GraphQL-first TypeScript backend for a Shopify launch agent. V1 is focused on catalog creation, collections, store pages, SEO/AEO copy, optional metaobject upserts, and Online Store publishing. Theme file edits are intentionally out of scope for now.
 
 ## Requirements
@@ -45,6 +47,14 @@ ZENDROP_MCP_URL=https://app.zendrop.com/mcp/v1
 ZENDROP_CLIENT_ID=
 ZENDROP_ACCESS_TOKEN=
 ZENDROP_REFRESH_TOKEN=
+
+AGENT_BASE_URL=http://127.0.0.1:8080
+SHOPIFY_THEME_STORE=your-store.myshopify.com
+SHOPIFY_THEME_ID=
+SHOPIFY_THEME_PATH=theme
+SHOPIFY_THEME_ALLOW_LIVE=0
+SHOPIFY_THEME_PUBLISH_ON_PUSH=0
+STORE_SYNC_ZENDROP_ASSETS=0
 ```
 
 For Dev Dashboard apps, this server can exchange `SHOPIFY_CLIENT_ID` and `SHOPIFY_CLIENT_SECRET` for a short-lived access token automatically. You won't see a permanent Admin token in the UI for that app model.
@@ -56,6 +66,33 @@ For Zendrop MCP, this backend now supports a local OAuth bootstrap flow. Open `/
 ```bash
 npm run dev
 ```
+
+## Automated Store Workflow
+
+Once `.env` is configured, the intended edit-and-push loop is:
+
+1. Make catalog, copy, route, or theme changes in this repo.
+2. Run `npm run store:deploy`.
+3. The repo will sync Shopify data first, then push the local `theme/` kit to the configured Shopify theme.
+
+Available commands:
+
+- `npm run theme:auth`: one-time Shopify CLI login for the configured store using the repo-local CLI.
+- `npm run theme:list`: lists available Shopify themes so you can copy the correct `SHOPIFY_THEME_ID` into `.env`.
+- `npm run store:sync-data`: starts the local agent server if needed, creates any missing theme metaobject definitions, syncs launch storefront content, and prints launch readiness.
+- `npm run theme:push`: pushes the local `theme/` directory to `SHOPIFY_THEME_ID` with `--nodelete` so it can be used as a partial theme kit.
+- `npm run theme:preview`: runs `shopify theme dev` against the local `theme/` directory for preview work.
+- `npm run store:deploy`: runs the data sync and then the theme push in one command.
+
+Notes:
+
+- Run `npm run theme:auth` once before the first push on a new machine.
+- Run `npm run theme:list` after authentication, then paste the desired theme ID into `SHOPIFY_THEME_ID`.
+- `SHOPIFY_THEME_ID` is required so pushes stay non-interactive and deterministic.
+- `SHOPIFY_THEME_ALLOW_LIVE=1` adds `--allow-live` to the push command when you intentionally want to target the live theme.
+- `SHOPIFY_THEME_PUBLISH_ON_PUSH=1` adds `--publish` if you want the CLI to publish the pushed theme version.
+- `STORE_SYNC_ZENDROP_ASSETS=1` adds a Zendrop asset refresh during `store:sync-data`.
+- Theme commands use the repo-local Shopify CLI binary first, then fall back to a global `shopify` binary if you already have one installed.
 
 ## Repo Layout
 
@@ -108,6 +145,22 @@ Lists available seeded catalogs.
 
 Returns the encoded typsh.it launch strategy and operating decisions for agents or admin tooling.
 
+### `GET /workflows/theme-handoff`
+
+Returns the structured homepage, navigation, logo, bundle, and section handoff data for theme implementation.
+
+### `GET /workflows/app-stack-plan`
+
+Returns the recommended launch app stack, install order, and retention flow plan.
+
+### `GET /workflows/theme-metaobject-definitions`
+
+Returns the recommended Shopify metaobject definition specs for merchant-editable homepage, bundle, and trust-strip data.
+
+### `POST /workflows/create-theme-metaobject-definitions`
+
+Creates any missing Shopify metaobject definitions required by the optional theme-homepage data model.
+
 ### `GET /workflows/sourcing-plan`
 
 Returns the supplier-platform sourcing manifest, target margins, search terms, and manual connection requirements for the five-product launch catalog.
@@ -147,6 +200,19 @@ Request:
 {
   "catalogKey": "typsh-it-launch",
   "publish": false
+}
+```
+
+### `POST /workflows/sync-launch-storefront`
+
+Reruns the launch catalog workflow as an upsert pass for an existing store. Use this after products already exist in Shopify and you want to refresh product copy, collection content, page content, and collection membership without relying on theme edits.
+
+Request:
+
+```json
+{
+  "catalogKey": "typsh-it-launch",
+  "publish": true
 }
 ```
 

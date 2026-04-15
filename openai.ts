@@ -29,20 +29,86 @@ function titleFromHandle(handle: string): string {
     .join(" ");
 }
 
-function createProductDescription(seed: LaunchCatalogSeed["products"][number]): string {
+function buildProductLink(handle: string, title: string): string {
+  return `<a href="/products/${escapeHtml(handle)}">${escapeHtml(title)}</a>`;
+}
+
+function selectRelatedProducts(
+  seed: LaunchCatalogSeed["products"][number],
+  products: LaunchCatalogSeed["products"],
+) {
+  const rankedProducts = products
+    .filter((product) => product.handle !== seed.handle)
+    .map((product) => ({
+      product,
+      sharedCollections: product.collections.filter((collection) =>
+        seed.collections.includes(collection),
+      ).length,
+    }))
+    .sort(
+      (left, right) =>
+        right.sharedCollections - left.sharedCollections || left.product.price - right.product.price,
+    );
+
+  const relatedProducts = rankedProducts.filter((entry) => entry.sharedCollections > 0);
+  return (relatedProducts.length ? relatedProducts : rankedProducts)
+    .slice(0, 2)
+    .map((entry) => entry.product);
+}
+
+function selectRelevantBundles(
+  seed: LaunchCatalogSeed["products"][number],
+  bundles: LaunchCatalogSeed["bundles"],
+) {
+  return bundles.filter((bundle) => bundle.productHandles.includes(seed.handle)).slice(0, 2);
+}
+
+function createProductDescription(
+  seed: LaunchCatalogSeed["products"][number],
+  products: LaunchCatalogSeed["products"],
+  bundles: LaunchCatalogSeed["bundles"],
+): string {
   const intro = seed.faq?.[0]?.a ?? `${seed.title} is a practical everyday upgrade built to solve a real problem fast.`;
+  const bestFor =
+    seed.faq?.[1]?.a ??
+    `${seed.title} is a strong fit for shoppers who want a straightforward everyday fix without a complicated setup.`;
   const faqHtml = (seed.faq ?? [])
     .map(
       (entry) =>
         `<h3>${escapeHtml(entry.q)}</h3><p>${escapeHtml(entry.a)}</p>`,
     )
     .join("");
+  const relatedProducts = selectRelatedProducts(seed, products);
+  const relevantBundles = selectRelevantBundles(seed, bundles);
+  const relatedProductsHtml = relatedProducts.length
+    ? `<h2>Pair it with</h2><ul>${relatedProducts
+        .map(
+          (product) =>
+            `<li>${buildProductLink(product.handle, product.title)}: ${escapeHtml(
+              product.faq?.[0]?.a ?? product.bullets[0] ?? `${product.title} adds another practical upgrade to your order.`,
+            )}</li>`,
+        )
+        .join("")}</ul>`
+    : "";
+  const bundleHtml = relevantBundles.length
+    ? `<h2>Bundle idea</h2><ul>${relevantBundles
+        .map(
+          (bundle) =>
+            `<li><strong>${escapeHtml(bundle.title)}:</strong> ${escapeHtml(bundle.summary)} ${escapeHtml(
+              bundle.savingsMessage,
+            )}</li>`,
+        )
+        .join("")}</ul>`
+    : "";
 
   return [
     `<p>${escapeHtml(intro)}</p>`,
+    `<p><strong>Best for:</strong> ${escapeHtml(bestFor)}</p>`,
     `<h2>Why it helps</h2><ul>${seed.bullets
       .map((bullet) => `<li>${escapeHtml(bullet)}</li>`)
       .join("")}</ul>`,
+    bundleHtml,
+    relatedProductsHtml,
     `<h2>Shipping</h2><p>Free US shipping is built into the price. Orders are processed as quickly as possible and tracking is provided when available.</p>`,
     `<h2>Returns and support</h2><p>If your order arrives damaged or defective, contact support@typsh.it within 30 days and the team will help resolve it.</p>`,
     faqHtml ? `<h2>FAQ</h2>${faqHtml}` : "",
@@ -50,7 +116,7 @@ function createProductDescription(seed: LaunchCatalogSeed["products"][number]): 
 }
 
 function createCollectionDescription(seed: LaunchCatalogSeed["collections"][number]): string {
-  return `<p>${escapeHtml(seed.summary)}</p>`;
+  return `<p>${escapeHtml(seed.summary)}</p><p>Every collection is curated for practical value, cleaner merchandising, and free US shipping built into the price.</p>`;
 }
 
 function createPageBody(seed: LaunchCatalogSeed["pages"][number]): string {
@@ -76,7 +142,7 @@ function generateLaunchCatalogAssetsLocally(
     products: seed.products.map((product) => ({
       title: product.title,
       handle: product.handle,
-      descriptionHtml: createProductDescription(product),
+      descriptionHtml: createProductDescription(product, seed.products, seed.bundles),
       vendor: seed.vendor,
       productType: product.category,
       tags: product.tags ?? [],

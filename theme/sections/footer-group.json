@@ -1,0 +1,16 @@
+{
+  "name": "typsh Footer Group",
+  "type": "footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "logo_width": 220,
+        "use_animated_logo": false
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

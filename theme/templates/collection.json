@@ -1,0 +1,46 @@
+{
+  "sections": {
+    "main": {
+      "type": "typsh-collection-main",
+      "settings": {}
+    },
+    "ugc": {
+      "type": "typsh-ugc-reels",
+      "settings": {
+        "eyebrow": "Content-backed merchandising",
+        "heading": "Collection proof that still feels native to the feed",
+        "body": "Use this strip below the catalog to reinforce creator-style use cases without slowing down the browse experience."
+      },
+      "blocks": {
+        "ugc_1": {
+          "type": "reel",
+          "settings": {
+            "badge": "Collection edit",
+            "author": "@typsh.it",
+            "title": "Highlight one product benefit per reel",
+            "caption": "The best collection proof rows work like soft retargeting: quick, visual, and easy to scan.",
+            "link_label": "Shop now"
+          }
+        },
+        "ugc_2": {
+          "type": "reel",
+          "settings": {
+            "badge": "UGC",
+            "author": "@creatorreview",
+            "title": "Keep the focus on context, not just aesthetics",
+            "caption": "Products should feel useful in a real routine, not like anonymous grid fillers.",
+            "link_label": "View more"
+          }
+        }
+      },
+      "block_order": [
+        "ugc_1",
+        "ugc_2"
+      ]
+    }
+  },
+  "order": [
+    "main",
+    "ugc"
+  ]
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">typsh.it monogram</title>
+  <desc id="desc">Dark square monogram with t dot mark for typsh.it favicon use.</desc>
+  <rect width="256" height="256" rx="44" fill="#0F1115" />
+  <text x="62" y="154" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="118" font-weight="700" letter-spacing="4">t</text>
+  <circle cx="171" cy="157" r="18" fill="#3B82F6" />
+</svg>

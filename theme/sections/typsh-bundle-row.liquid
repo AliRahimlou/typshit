@@ -1,0 +1,173 @@
+{{ 'typsh-homepage.css' | asset_url | stylesheet_tag }}
+
+<section class="typsh-section typsh-bundle-row" id="bundles">
+  <div class="typsh-shell">
+    <div class="typsh-section-header">
+      <p class="typsh-eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="typsh-heading">{{ section.settings.heading }}</h2>
+      <p class="typsh-lead">{{ section.settings.body }}</p>
+    </div>
+
+    <div class="typsh-bundle-grid">
+      <article class="typsh-card">
+        <span class="typsh-badge">{{ section.settings.bundle_one_savings }}</span>
+        <h3 class="typsh-card-title">{{ section.settings.bundle_one_title }}</h3>
+        <p class="typsh-card-copy">{{ section.settings.bundle_one_summary }}</p>
+        <p class="typsh-caption">Includes: {{ section.settings.bundle_one_items }}</p>
+        <a class="typsh-button typsh-button--secondary" href="{{ section.settings.bundle_one_url }}">{{ section.settings.bundle_one_cta }}</a>
+      </article>
+
+      <article class="typsh-card">
+        <span class="typsh-badge">{{ section.settings.bundle_two_savings }}</span>
+        <h3 class="typsh-card-title">{{ section.settings.bundle_two_title }}</h3>
+        <p class="typsh-card-copy">{{ section.settings.bundle_two_summary }}</p>
+        <p class="typsh-caption">Includes: {{ section.settings.bundle_two_items }}</p>
+        <a class="typsh-button typsh-button--secondary" href="{{ section.settings.bundle_two_url }}">{{ section.settings.bundle_two_cta }}</a>
+      </article>
+
+      <article class="typsh-card">
+        <span class="typsh-badge">{{ section.settings.bundle_three_savings }}</span>
+        <h3 class="typsh-card-title">{{ section.settings.bundle_three_title }}</h3>
+        <p class="typsh-card-copy">{{ section.settings.bundle_three_summary }}</p>
+        <p class="typsh-caption">Includes: {{ section.settings.bundle_three_items }}</p>
+        <a class="typsh-button typsh-button--secondary" href="{{ section.settings.bundle_three_url }}">{{ section.settings.bundle_three_cta }}</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "typsh Bundle row",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Bundle merchandising"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Launch bundles"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body",
+      "default": "Use the first three bundles to raise AOV without making the store feel stuffed with noisy upsells. Keep the pitch practical and curated."
+    },
+    {
+      "type": "text",
+      "id": "bundle_one_title",
+      "label": "Bundle 1 title",
+      "default": "Home Refresh Bundle"
+    },
+    {
+      "type": "text",
+      "id": "bundle_one_savings",
+      "label": "Bundle 1 savings",
+      "default": "Cleaner routines"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_one_summary",
+      "label": "Bundle 1 summary",
+      "default": "A practical two-item upgrade for cleaner routines, faster touch-ups, and a tidier everyday home setup."
+    },
+    {
+      "type": "text",
+      "id": "bundle_one_items",
+      "label": "Bundle 1 items",
+      "default": "Handheld Clothes Steamer + Silicone Drain Protector"
+    },
+    {
+      "type": "text",
+      "id": "bundle_one_cta",
+      "label": "Bundle 1 CTA",
+      "default": "Shop Home Refresh"
+    },
+    {
+      "type": "url",
+      "id": "bundle_one_url",
+      "label": "Bundle 1 URL"
+    },
+    {
+      "type": "text",
+      "id": "bundle_two_title",
+      "label": "Bundle 2 title",
+      "default": "Desk Setup Bundle"
+    },
+    {
+      "type": "text",
+      "id": "bundle_two_savings",
+      "label": "Bundle 2 savings",
+      "default": "Clean setup"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_two_summary",
+      "label": "Bundle 2 summary",
+      "default": "A clean desk and lighting pairing for shoppers who want a setup that looks more intentional and works better every day."
+    },
+    {
+      "type": "text",
+      "id": "bundle_two_items",
+      "label": "Bundle 2 items",
+      "default": "Wireless Charging Station + Ring Light"
+    },
+    {
+      "type": "text",
+      "id": "bundle_two_cta",
+      "label": "Bundle 2 CTA",
+      "default": "Shop Desk Setup"
+    },
+    {
+      "type": "url",
+      "id": "bundle_two_url",
+      "label": "Bundle 2 URL"
+    },
+    {
+      "type": "text",
+      "id": "bundle_three_title",
+      "label": "Bundle 3 title",
+      "default": "Everyday Fixes Bundle"
+    },
+    {
+      "type": "text",
+      "id": "bundle_three_savings",
+      "label": "Bundle 3 savings",
+      "default": "Easy add-on"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_three_summary",
+      "label": "Bundle 3 summary",
+      "default": "Two low-hassle home products merchandised together for easy before-and-after value."
+    },
+    {
+      "type": "text",
+      "id": "bundle_three_items",
+      "label": "Bundle 3 items",
+      "default": "Magnetic Screen Door + Silicone Drain Protector"
+    },
+    {
+      "type": "text",
+      "id": "bundle_three_cta",
+      "label": "Bundle 3 CTA",
+      "default": "Shop Everyday Fixes"
+    },
+    {
+      "type": "url",
+      "id": "bundle_three_url",
+      "label": "Bundle 3 URL"
+    }
+  ],
+  "presets": [
+    {
+      "name": "typsh Bundle row"
+    }
+  ]
+}
+{% endschema %}

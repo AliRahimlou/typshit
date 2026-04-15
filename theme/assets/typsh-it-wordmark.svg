@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="220" viewBox="0 0 840 220" role="img" aria-labelledby="title desc">
+  <title id="title">typsh.it wordmark</title>
+  <desc id="desc">Dark typsh.it wordmark with accent emphasis on the dot-it suffix.</desc>
+  <rect width="840" height="220" rx="28" fill="#0F1115" />
+  <g fill="none" fill-rule="evenodd">
+    <text x="62" y="138" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="700" letter-spacing="6">typsh</text>
+    <text x="505" y="138" fill="#3B82F6" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="700" letter-spacing="2">.it</text>
+  </g>
+</svg>

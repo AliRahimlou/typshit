@@ -1,14 +1,19 @@
 import { Router } from "express";
 
 import { getLaunchCatalog, listLaunchCatalogs } from "../data/launchCatalog.js";
+import { getAppStackPlan } from "../data/appStackPlan.js";
 import { getSourcingPlan } from "../data/sourcingPlan.js";
 import { getLaunchStrategy } from "../data/launchStrategy.js";
+import { getThemeMetaobjectDefinitions } from "../data/themeMetaobjectDefinitions.js";
+import { getThemeHandoff } from "../data/themeHandoff.js";
 import { generateLaunchCatalogAssets } from "../openai.js";
 import {
   createCollection,
   createPage,
   createProduct,
+  ensureMetaobjectDefinitions,
   getCollectionByHandle,
+  listMetaobjectDefinitions,
   getPageByHandle,
   getProductByHandle,
   retireProductByHandle,
@@ -81,6 +86,10 @@ function resolvePositiveInteger(value: unknown): number | undefined {
   }
 
   return value;
+}
+
+function normalizeMetaobjectType(type: string): string {
+  return type.replace(/^\$app:/, "").replace(/^app--\d+--/, "");
 }
 
 async function runLaunchCatalogWorkflow(
@@ -203,6 +212,38 @@ workflowsRouter.get("/launch-strategy", (_request, response) => {
   });
 });
 
+workflowsRouter.get("/theme-handoff", (_request, response) => {
+  response.json({
+    themeHandoff: getThemeHandoff(),
+  });
+});
+
+workflowsRouter.get("/app-stack-plan", (_request, response) => {
+  response.json({
+    appStackPlan: getAppStackPlan(),
+  });
+});
+
+workflowsRouter.get("/theme-metaobject-definitions", (_request, response) => {
+  response.json({
+    definitions: getThemeMetaobjectDefinitions(),
+  });
+});
+
+workflowsRouter.post("/create-theme-metaobject-definitions", async (_request, response) => {
+  try {
+    const result = await ensureMetaobjectDefinitions(getThemeMetaobjectDefinitions());
+    response.json({
+      workflow: "create_theme_metaobject_definitions",
+      ...result,
+    });
+  } catch (error) {
+    response.status(500).json({
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
 workflowsRouter.get("/zendrop-status", async (_request, response) => {
   try {
     response.json({
@@ -259,6 +300,27 @@ workflowsRouter.post("/create-launch-catalog", async (request, response) => {
 
     response.json({
       workflow: "create_launch_catalog",
+      catalogKey: seed.key,
+      ...result,
+    });
+  } catch (error) {
+    response.status(500).json({
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+workflowsRouter.post("/sync-launch-storefront", async (request, response) => {
+  try {
+    const seed = resolveCatalogFromBody(request.body as { catalogKey?: unknown });
+    const publish = resolvePublishFlag(request.body as { publish?: unknown });
+
+    const result = await runLaunchCatalogWorkflow(seed, {
+      publish,
+    });
+
+    response.json({
+      workflow: "sync_launch_storefront",
       catalogKey: seed.key,
       ...result,
     });
@@ -600,6 +662,14 @@ workflowsRouter.get("/launch-readiness", async (_request, response) => {
       }),
     );
 
+    const metaobjectDefinitions = await listMetaobjectDefinitions();
+    const requiredThemeDefinitionTypes = getThemeMetaobjectDefinitions().map((definition) => definition.type);
+    const themeDefinitionCount = requiredThemeDefinitionTypes.filter((type) =>
+      metaobjectDefinitions.some(
+        (definition) => normalizeMetaobjectType(definition.type) === normalizeMetaobjectType(type),
+      ),
+    ).length;
+
     const checks: LaunchReadinessCheck[] = [
       {
         area: "catalog",
@@ -620,6 +690,12 @@ workflowsRouter.get("/launch-readiness", async (_request, response) => {
         area: "legacy-cleanup",
         status: legacyChecks.every((item) => item.retired) ? "ready" : "in-progress",
         details: `${legacyChecks.filter((item) => item.retired).length}/${legacyChecks.length} legacy products are retired from storefront visibility.`,
+      },
+      {
+        area: "theme-data",
+        status:
+          themeDefinitionCount === requiredThemeDefinitionTypes.length ? "ready" : "in-progress",
+        details: `${themeDefinitionCount}/${requiredThemeDefinitionTypes.length} theme metaobject definitions exist for future homepage and bundle data wiring.`,
       },
       {
         area: "supplier-connections",

@@ -1,0 +1,117 @@
+{
+  "sections": {
+    "typsh_hero": {
+      "type": "typsh-hero",
+      "settings": {
+        "primary_cta_url": "/collections/best-sellers",
+        "secondary_cta_url": "/collections/new-arrivals"
+      }
+    },
+    "typsh_trust_strip": {
+      "type": "typsh-trust-strip",
+      "settings": {}
+    },
+    "typsh_featured_products": {
+      "type": "typsh-featured-products",
+      "settings": {}
+    },
+    "typsh_category_grid": {
+      "type": "typsh-category-grid",
+      "settings": {}
+    },
+    "typsh_hero_product": {
+      "type": "typsh-hero-product",
+      "settings": {
+        "primary_cta_url": "/products/handheld-clothes-steamer",
+        "secondary_cta_url": "#bundles"
+      }
+    },
+    "typsh_bundle_row": {
+      "type": "typsh-bundle-row",
+      "settings": {
+        "bundle_one_url": "/products/handheld-clothes-steamer",
+        "bundle_two_url": "/products/wireless-charging-station",
+        "bundle_three_url": "/products/magnetic-screen-door"
+      }
+    },
+    "typsh_ugc": {
+      "type": "typsh-ugc-reels",
+      "settings": {
+        "eyebrow": "Community-led product storytelling",
+        "heading": "Short-form proof the homepage can actually use",
+        "body": "This row is designed to feel closer to a swipeable feed than a static testimonial strip. Use it to show the products in context, not just in a studio crop."
+      },
+      "blocks": {
+        "ugc_1": {
+          "type": "reel",
+          "settings": {
+            "badge": "UGC",
+            "author": "@launchcreator",
+            "title": "Show the main before-and-after use case",
+            "caption": "This should reinforce a practical benefit in the first glance, especially for paid-social traffic landing on the homepage.",
+            "link": "/collections/best-sellers",
+            "link_label": "Shop best sellers"
+          }
+        },
+        "ugc_2": {
+          "type": "reel",
+          "settings": {
+            "badge": "Creator setup",
+            "author": "@deskflow",
+            "title": "Use creator-style vertical crops for tech products",
+            "caption": "The goal is not novelty. It is faster desire and lower effort understanding on mobile.",
+            "link": "/collections/creator-setup",
+            "link_label": "Shop creator setup"
+          }
+        },
+        "ugc_3": {
+          "type": "reel",
+          "settings": {
+            "badge": "Home fixes",
+            "author": "@homeupgrade",
+            "title": "Context makes practical products feel more premium",
+            "caption": "Use this slot to make utility feel desirable instead of purely functional.",
+            "link": "/collections/home-fixes",
+            "link_label": "Shop home fixes"
+          }
+        }
+      },
+      "block_order": [
+        "ugc_1",
+        "ugc_2",
+        "ugc_3"
+      ]
+    },
+    "typsh_social_proof": {
+      "type": "typsh-social-proof",
+      "settings": {}
+    },
+    "typsh_why": {
+      "type": "typsh-why-typsh",
+      "settings": {}
+    },
+    "typsh_faq": {
+      "type": "typsh-faq-preview",
+      "settings": {
+        "faq_page_url": "/pages/faq"
+      }
+    },
+    "typsh_email": {
+      "type": "typsh-email-capture",
+      "settings": {}
+    }
+  },
+  "order": [
+    "typsh_hero",
+    "typsh_trust_strip",
+    "typsh_featured_products",
+    "typsh_category_grid",
+    "typsh_hero_product",
+    "typsh_bundle_row",
+    "typsh_ugc",
+    "typsh_social_proof",
+    "typsh_why",
+    "typsh_faq",
+    "typsh_email"
+  ]
+}

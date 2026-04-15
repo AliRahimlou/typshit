@@ -1,0 +1,19 @@
+{
+  "name": "typsh Header Group",
+  "type": "header",
+  "sections": {
+    "header": {
+      "type": "header",
+      "settings": {
+        "logo_width": 260,
+        "show_account": false,
+        "show_search": false,
+        "show_cart": true,
+        "use_animated_logo": true
+      }
+    }
+  },
+  "order": [
+    "header"
+  ]
+}

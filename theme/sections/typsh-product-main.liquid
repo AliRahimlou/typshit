@@ -1,0 +1,316 @@
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_media_id = blank
+  if current_variant.featured_media != blank
+    assign featured_media_id = current_variant.featured_media.id
+  elsif product.featured_media != blank
+    assign featured_media_id = product.featured_media.id
+  endif
+
+  assign lead_copy = section.settings.lead_copy
+  if lead_copy == blank
+    assign lead_copy = product.description | strip_html | truncatewords: 30
+  endif
+
+  assign bundle_product = blank
+  if section.settings.bundle_product != blank
+    assign bundle_product = all_products[section.settings.bundle_product]
+  endif
+
+  assign stock_label = 'Ready to ship'
+  if current_variant.available == false
+    assign stock_label = 'Sold out'
+  elsif current_variant.inventory_management != blank and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= 12
+    assign stock_label = 'Only ' | append: current_variant.inventory_quantity | append: ' left'
+  endif
+%}
+
+<section class="typsh-commerce-section typsh-product-main-section">
+  <div class="typsh-commerce-shell">
+    <div class="typsh-commerce-layout" data-typsh-product-root data-product-handle="{{ product.handle }}">
+      <div class="typsh-commerce-panel typsh-commerce-gallery">
+        <div class="typsh-commerce-grid" style="gap: 14px;">
+          {% for media in product.media %}
+            <div class="typsh-commerce-media" data-typsh-media-item data-media-id="{{ media.id }}" {% if featured_media_id != blank and media.id != featured_media_id %}hidden{% endif %}>
+              {% case media.media_type %}
+                {% when 'image' %}
+                  {{ media | image_url: width: 1400 | image_tag: widths: '500, 700, 900, 1100, 1400', sizes: '(min-width: 990px) 50vw, 100vw', loading: forloop.first | default: false | replace: 'true', 'eager' | replace: 'false', 'lazy', alt: media.alt | default: product.title }}
+                {% when 'video' %}
+                  {{ media | video_tag: image_size: '1100x', autoplay: forloop.first, loop: true, muted: true, controls: true }}
+                {% else %}
+                  {{ media.preview_image | image_url: width: 1400 | image_tag: widths: '500, 700, 900, 1100, 1400', sizes: '(min-width: 990px) 50vw, 100vw', loading: 'lazy', alt: media.alt | default: product.title }}
+              {% endcase %}
+            </div>
+          {% endfor %}
+        </div>
+
+        {% if product.media.size > 1 %}
+          <div class="typsh-commerce-thumbs" role="tablist" aria-label="Product media gallery thumbnails">
+            {% for media in product.media %}
+              <button class="typsh-commerce-thumb" type="button" data-typsh-media-thumb data-media-id="{{ media.id }}" aria-pressed="{% if featured_media_id != blank and media.id == featured_media_id %}true{% elsif featured_media_id == blank and forloop.first %}true{% else %}false{% endif %}">
+                {{ media.preview_image | image_url: width: 200 | image_tag: widths: '80, 120, 160, 200', sizes: '84px', loading: 'lazy', alt: media.alt | default: product.title }}
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="typsh-commerce-panel typsh-commerce-buybox" data-typsh-buy-box>
+        <div class="typsh-commerce-grid" style="gap: 14px;">
+          <div class="typsh-commerce-topline">
+            <span class="typsh-commerce-pill">{{ product.type | default: 'Launch product' }}</span>
+            <div class="typsh-commerce-rating" aria-label="Trust and review placeholder">
+              <span>★★★★★</span>
+              <span>{{ section.settings.review_label }}</span>
+            </div>
+          </div>
+
+          <div class="typsh-commerce-grid" style="gap: 10px;">
+            <p class="typsh-commerce-eyebrow">{{ section.settings.eyebrow | default: 'Designed for paid social traffic' }}</p>
+            <h1 class="typsh-commerce-title">{{ product.title }}</h1>
+            <p class="typsh-commerce-copy">{{ lead_copy }}</p>
+          </div>
+
+          <div class="typsh-commerce-price-row">
+            <strong class="typsh-commerce-price" data-typsh-price>{{ current_variant.price | money }}</strong>
+            <span class="typsh-commerce-price typsh-commerce-price--compare" data-typsh-compare-price {% unless current_variant.compare_at_price > current_variant.price %}hidden{% endunless %}>{% if current_variant.compare_at_price > current_variant.price %}{{ current_variant.compare_at_price | money }}{% endif %}</span>
+            <span class="typsh-commerce-stock" data-typsh-stock-label>{{ stock_label }}</span>
+          </div>
+
+          {% if section.settings.urgency_text != blank %}
+            <p class="typsh-commerce-urgency">{{ section.settings.urgency_text }}</p>
+          {% endif %}
+        </div>
+
+        {% if product.has_only_default_variant == false %}
+          <div class="typsh-commerce-options">
+            {% for option in product.options_with_values %}
+              <fieldset class="typsh-commerce-option" data-typsh-option-group>
+                <div class="typsh-commerce-option__label">
+                  <legend class="typsh-commerce-meta-label">{{ option.name }}</legend>
+                  <span class="typsh-commerce-meta-text">{{ option.selected_value }}</span>
+                </div>
+                <div class="typsh-commerce-option__values">
+                  {% for value in option.values %}
+                    <div>
+                      <input type="radio" id="{{ section.id }}-{{ option.position }}-{{ forloop.index }}" data-typsh-option-input name="option-{{ option.position }}" value="{{ value | escape }}" {% if option.selected_value == value %}checked{% endif %}>
+                      <label class="typsh-commerce-option__value" for="{{ section.id }}-{{ option.position }}-{{ forloop.index }}">{{ value }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </fieldset>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% form 'product', product, id: 'TypshProductForm-' | append: section.id, class: 'typsh-commerce-form-stack', novalidate: 'novalidate', data-typsh-ajax-cart-form: '' %}
+          <input type="hidden" name="id" value="{{ current_variant.id }}" data-typsh-variant-id>
+          <div class="typsh-commerce-actions">
+            <button class="typsh-commerce-button typsh-commerce-button--primary" type="submit" data-typsh-submit data-available-label="{{ section.settings.add_to_cart_label }}" {% unless current_variant.available %}disabled{% endunless %}>{% if current_variant.available %}{{ section.settings.add_to_cart_label }}{% else %}Sold out{% endif %}</button>
+            <a class="typsh-commerce-link-button" href="{{ section.settings.secondary_action_url | default: '/pages/track-order' }}">{{ section.settings.secondary_action_label }}</a>
+          </div>
+
+          {% if section.settings.show_dynamic_checkout %}
+            {{ form | payment_button }}
+          {% endif %}
+        {% endform %}
+
+        <p class="typsh-commerce-quick-add-status" data-quick-add-status></p>
+
+        <div class="typsh-commerce-inline-list" role="list">
+          {% if section.settings.checklist_one != blank %}
+            <p class="typsh-commerce-check" role="listitem">{{ section.settings.checklist_one }}</p>
+          {% endif %}
+          {% if section.settings.checklist_two != blank %}
+            <p class="typsh-commerce-check" role="listitem">{{ section.settings.checklist_two }}</p>
+          {% endif %}
+          {% if section.settings.checklist_three != blank %}
+            <p class="typsh-commerce-check" role="listitem">{{ section.settings.checklist_three }}</p>
+          {% endif %}
+        </div>
+
+        {% if bundle_product != blank %}
+          <div class="typsh-commerce-bundle">
+            <div class="typsh-commerce-grid" style="gap: 8px;">
+              <p class="typsh-commerce-kicker">Frequently paired</p>
+              <h2 class="typsh-commerce-heading">{{ section.settings.bundle_heading }}</h2>
+              <p class="typsh-commerce-copy">{{ section.settings.bundle_copy }}</p>
+            </div>
+            {% render 'typsh-commerce-card', product_object: bundle_product, badge: 'Bundle pairing', quick_add_label: 'Add pairing', cta_label: section.settings.bundle_link_label, show_quick_add: true %}
+          </div>
+        {% endif %}
+
+        <div class="typsh-commerce-trust-grid">
+          {% for block in section.blocks %}
+            {% if block.type == 'trust_item' %}
+              <div class="typsh-commerce-trust-card" {{ block.shopify_attributes }}>
+                <p class="typsh-commerce-kicker">{{ block.settings.title }}</p>
+                <p class="typsh-commerce-copy">{{ block.settings.copy }}</p>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="typsh-commerce-grid">
+          {% for block in section.blocks %}
+            {% if block.type == 'accordion' %}
+              <details class="typsh-commerce-accordion" {% if forloop.first %}open{% endif %} {{ block.shopify_attributes }}>
+                <summary>
+                  <span class="typsh-commerce-card__title">{{ block.settings.heading }}</span>
+                  <span class="typsh-commerce-accordion__icon">+</span>
+                </summary>
+                <div class="typsh-commerce-accordion__body rte">{{ block.settings.body }}</div>
+              </details>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="typsh-commerce-sticky-bar is-hidden" data-typsh-sticky-bar>
+    <div class="typsh-commerce-sticky-bar__meta">
+      <span class="typsh-commerce-sticky-bar__title">{{ product.title }}</span>
+      <span class="typsh-commerce-sticky-bar__price"><span data-typsh-price>{{ current_variant.price | money }}</span> · <span data-typsh-variant-title>{{ current_variant.title | default: 'Default option' }}</span></span>
+    </div>
+    {% form 'product', product, id: 'TypshStickyProductForm-' | append: section.id, class: 'typsh-commerce-actions', data-typsh-ajax-cart-form: '' %}
+      <input type="hidden" name="id" value="{{ current_variant.id }}" data-typsh-variant-id>
+      <button class="typsh-commerce-button typsh-commerce-button--primary" type="submit" data-typsh-submit data-available-label="{{ section.settings.add_to_cart_label }}" {% unless current_variant.available %}disabled{% endunless %}>{% if current_variant.available %}{{ section.settings.add_to_cart_label }}{% else %}Sold out{% endif %}</button>
+    {% endform %}
+  </div>
+
+  <script type="application/json" data-typsh-variants>{{ product.variants | json }}</script>
+</section>
+
+{% schema %}
+{
+  "name": "typsh Product main",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Mobile-first product funnel"
+    },
+    {
+      "type": "textarea",
+      "id": "lead_copy",
+      "label": "Lead copy"
+    },
+    {
+      "type": "text",
+      "id": "review_label",
+      "label": "Review placeholder label",
+      "default": "4.8 average from launch shoppers"
+    },
+    {
+      "type": "text",
+      "id": "urgency_text",
+      "label": "Urgency text",
+      "default": "Ships quickly from the US-facing launch workflow. High-intent traffic should get a decisive first screen."
+    },
+    {
+      "type": "text",
+      "id": "add_to_cart_label",
+      "label": "Add to cart label",
+      "default": "Add to cart"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "Show dynamic checkout button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "secondary_action_label",
+      "label": "Secondary action label",
+      "default": "Track order"
+    },
+    {
+      "type": "url",
+      "id": "secondary_action_url",
+      "label": "Secondary action URL"
+    },
+    {
+      "type": "text",
+      "id": "checklist_one",
+      "label": "Checklist item 1",
+      "default": "Free US shipping is already built into the price"
+    },
+    {
+      "type": "text",
+      "id": "checklist_two",
+      "label": "Checklist item 2",
+      "default": "Responsive support at support@typsh.it"
+    },
+    {
+      "type": "text",
+      "id": "checklist_three",
+      "label": "Checklist item 3",
+      "default": "Low-friction checkout with a persistent mobile CTA"
+    },
+    {
+      "type": "product",
+      "id": "bundle_product",
+      "label": "Bundled or paired product"
+    },
+    {
+      "type": "text",
+      "id": "bundle_heading",
+      "label": "Bundle heading",
+      "default": "Pair it with a practical add-on"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_copy",
+      "label": "Bundle copy",
+      "default": "Use one focused pairing instead of stacking multiple upsells. This keeps the buy box clean while still lifting AOV."
+    },
+    {
+      "type": "text",
+      "id": "bundle_link_label",
+      "label": "Bundle product link label",
+      "default": "View pairing"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_item",
+      "name": "Trust item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Transparent shipping"
+        },
+        {
+          "type": "textarea",
+          "id": "copy",
+          "label": "Copy",
+          "default": "Clarify shipping expectations and support visibility before the shopper has to ask."
+        }
+      ]
+    },
+    {
+      "type": "accordion",
+      "name": "Accordion",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Shipping and returns"
+        },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Body",
+          "default": "<p>Use concise, transparent policy copy that answers hesitation without sending the customer to a separate page too early.</p>"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

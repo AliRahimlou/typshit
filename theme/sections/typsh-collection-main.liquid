@@ -1,0 +1,176 @@
+{% paginate collection.products by section.settings.products_per_page %}
+  <section class="typsh-commerce-section typsh-collection-main-section">
+    <div class="typsh-commerce-shell">
+      <div class="typsh-commerce-panel" style="padding: clamp(22px, 3vw, 34px);">
+        <div class="typsh-commerce-collection__header">
+          <p class="typsh-commerce-eyebrow">{{ section.settings.eyebrow }}</p>
+          <h1 class="typsh-commerce-title">{{ collection.title }}</h1>
+          {% if collection.description != blank %}
+            <div class="typsh-commerce-copy rte">{{ collection.description }}</div>
+          {% elsif section.settings.collection_body != blank %}
+            <p class="typsh-commerce-copy">{{ section.settings.collection_body }}</p>
+          {% endif %}
+        </div>
+
+        <div class="typsh-commerce-collection__toolbar">
+          <div class="typsh-commerce-actions">
+            <button class="typsh-commerce-filter__toggle" type="button" data-filter-toggle>Filters</button>
+            <span class="typsh-commerce-pill">{{ paginate.items }} products</span>
+            {% if collection.current_vendor or collection.current_type %}
+              <span class="typsh-commerce-pill">{{ collection.current_vendor | default: collection.current_type }}</span>
+            {% endif %}
+          </div>
+
+          <form method="get" action="{{ collection.url }}">
+            {% for filter in collection.filters %}
+              {% if filter.type == 'list' or filter.type == 'boolean' %}
+                {% for value in filter.active_values %}
+                  <input type="hidden" name="{{ value.param_name }}" value="{{ value.value }}">
+                {% endfor %}
+              {% elsif filter.type == 'price_range' %}
+                {% if filter.min_value.value %}
+                  <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}">
+                {% endif %}
+                {% if filter.max_value.value %}
+                  <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}">
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            <label class="typsh-commerce-visually-hidden" for="TypshSortBy">Sort products</label>
+            <select class="typsh-commerce-sort" id="TypshSortBy" name="sort_by" onchange="this.form.submit()">
+              {% for option in collection.sort_options %}
+                <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>{{ option.name }}</option>
+              {% endfor %}
+            </select>
+          </form>
+        </div>
+
+        {% assign has_active_filters = false %}
+        <div class="typsh-commerce-active-filters">
+          {% for filter in collection.filters %}
+            {% if filter.active_values.size > 0 %}
+              {% assign has_active_filters = true %}
+              {% for value in filter.active_values %}
+                <a class="typsh-commerce-chip" href="{{ value.url_to_remove }}">{{ value.label }} ✕</a>
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+          {% if has_active_filters %}
+            <a class="typsh-commerce-chip" href="{{ collection.url }}">Clear all</a>
+          {% endif %}
+        </div>
+
+        <div class="typsh-commerce-products typsh-commerce-collection__products" style="margin-top: 22px;">
+          {% for item_product in collection.products %}
+            {% render 'typsh-commerce-card', product_object: item_product, badge: section.settings.card_badge, quick_add_label: 'Quick add', cta_label: 'View product' %}
+          {% else %}
+            <div class="typsh-commerce-proof-card">
+              <h2 class="typsh-commerce-card__title">No products match these filters</h2>
+              <p class="typsh-commerce-copy">Remove one or more filters to restore the full launch assortment.</p>
+            </div>
+          {% endfor %}
+        </div>
+
+        {% if paginate.pages > 1 %}
+          <nav class="typsh-commerce-pagination" aria-label="Pagination">
+            {% if paginate.previous %}
+              <a href="{{ paginate.previous.url }}">Previous</a>
+            {% endif %}
+            {% for part in paginate.parts %}
+              {% if part.is_link %}
+                <a href="{{ part.url }}">{{ part.title }}</a>
+              {% else %}
+                <span class="{% if part.title == paginate.current_page %}is-current{% endif %}">{{ part.title }}</span>
+              {% endif %}
+            {% endfor %}
+            {% if paginate.next %}
+              <a href="{{ paginate.next.url }}">Next</a>
+            {% endif %}
+          </nav>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="typsh-commerce-filter-drawer" data-filter-drawer hidden>
+      <button class="typsh-commerce-filter-drawer__overlay" type="button" data-filter-overlay aria-label="Close filters"></button>
+      <aside class="typsh-commerce-filter-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="TypshFiltersHeading">
+        <div class="typsh-commerce-filter-drawer__header">
+          <div class="typsh-commerce-grid" style="gap: 6px;">
+            <p class="typsh-commerce-kicker">Discoverability first</p>
+            <h2 class="typsh-commerce-cart__heading" id="TypshFiltersHeading">Filter products</h2>
+          </div>
+          <button class="typsh-commerce-cart__close" type="button" data-filter-close>Close</button>
+        </div>
+
+        <form class="typsh-commerce-filters" method="get" action="{{ collection.url }}">
+          <input type="hidden" name="sort_by" value="{{ collection.sort_by | default: collection.default_sort_by }}">
+          {% for filter in collection.filters %}
+            <details class="typsh-commerce-filter" open>
+              <summary>
+                <span class="typsh-commerce-card__title">{{ filter.label }}</span>
+                <span class="typsh-commerce-meta-text">{% if filter.active_values.size > 0 %}{{ filter.active_values.size }} active{% endif %}</span>
+              </summary>
+
+              {% if filter.type == 'price_range' %}
+                <div class="typsh-commerce-grid" style="padding-top: 14px; gap: 12px;">
+                  <label class="typsh-commerce-copy" for="{{ filter.min_value.param_name }}">Min price</label>
+                  <input class="typsh-commerce-sort" type="number" name="{{ filter.min_value.param_name }}" id="{{ filter.min_value.param_name }}" value="{% if filter.min_value.value %}{{ filter.min_value.value | money_without_currency | replace: ',', '' }}{% endif %}" min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
+                  <label class="typsh-commerce-copy" for="{{ filter.max_value.param_name }}">Max price</label>
+                  <input class="typsh-commerce-sort" type="number" name="{{ filter.max_value.param_name }}" id="{{ filter.max_value.param_name }}" value="{% if filter.max_value.value %}{{ filter.max_value.value | money_without_currency | replace: ',', '' }}{% endif %}" min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
+                </div>
+              {% else %}
+                <div class="typsh-commerce-filter__values">
+                  {% for value in filter.values %}
+                    <label class="typsh-commerce-filter__value">
+                      <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}" {% if value.active %}checked{% endif %} {% if value.count == 0 and value.active == false %}disabled{% endif %}>
+                      <span>{{ value.label }}{% if value.count > 0 %} ({{ value.count }}){% endif %}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </details>
+          {% endfor %}
+
+          <div class="typsh-commerce-actions">
+            <button class="typsh-commerce-button typsh-commerce-button--primary" type="submit">Apply filters</button>
+            <a class="typsh-commerce-link-button" href="{{ collection.url }}">Clear all</a>
+          </div>
+        </form>
+      </aside>
+    </div>
+  </section>
+{% endpaginate %}
+
+{% schema %}
+{
+  "name": "typsh Collection main",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Fast catalog browsing"
+    },
+    {
+      "type": "textarea",
+      "id": "collection_body",
+      "label": "Fallback collection intro"
+    },
+    {
+      "type": "text",
+      "id": "card_badge",
+      "label": "Product card badge",
+      "default": "Problem solver"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 8,
+      "max": 36,
+      "step": 4,
+      "default": 24
+    }
+  ]
+}
+{% endschema %}

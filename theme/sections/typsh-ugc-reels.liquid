@@ -1,0 +1,110 @@
+<section class="typsh-commerce-section typsh-ugc-reels-section">
+  <div class="typsh-commerce-shell">
+    <div class="typsh-commerce-panel typsh-commerce-reels">
+      <div class="typsh-commerce-reels__header">
+        <p class="typsh-commerce-eyebrow">{{ section.settings.eyebrow }}</p>
+        <h2 class="typsh-commerce-heading">{{ section.settings.heading }}</h2>
+        <p class="typsh-commerce-copy">{{ section.settings.body }}</p>
+      </div>
+
+      <div class="typsh-commerce-reels__track" role="list">
+        {% for block in section.blocks %}
+          <article class="typsh-commerce-reel" role="listitem" {{ block.shopify_attributes }}>
+            <div class="typsh-commerce-reel__media">
+              {% if block.settings.image != blank %}
+                {{ block.settings.image | image_url: width: 900 | image_tag: widths: '320, 480, 640, 900', sizes: '280px', loading: 'lazy', alt: block.settings.title }}
+              {% else %}
+                <div class="typsh-commerce-empty" style="display:grid;place-items:center;height:100%;">UGC frame</div>
+              {% endif %}
+            </div>
+            <div class="typsh-commerce-grid" style="gap: 10px;">
+              <div class="typsh-commerce-card__row">
+                <span class="typsh-commerce-card__badge">{{ block.settings.badge }}</span>
+                <span class="typsh-commerce-reel__author">{{ block.settings.author }}</span>
+              </div>
+              <h3 class="typsh-commerce-reel__title">{{ block.settings.title }}</h3>
+              <p class="typsh-commerce-reel__meta">{{ block.settings.caption }}</p>
+            </div>
+            {% if block.settings.link != blank %}
+              <a class="typsh-commerce-link-button" href="{{ block.settings.link }}">{{ block.settings.link_label }}</a>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "typsh UGC reels",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Community and creator proof"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "See it like a social feed"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body",
+      "default": "This section is built to feel closer to short-form content than a static testimonial strip. Use vertical media, creator captions, and clear next actions."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "reel",
+      "name": "Reel",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge",
+          "default": "UGC"
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Author",
+          "default": "Creator handle"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Show the product in a real use case"
+        },
+        {
+          "type": "textarea",
+          "id": "caption",
+          "label": "Caption",
+          "default": "Use a before-and-after angle, contextual shot, or creator reaction rather than generic promotional copy."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Link label",
+          "default": "Shop this look"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

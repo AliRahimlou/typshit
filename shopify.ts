@@ -2,10 +2,12 @@ import { config } from "./config.js";
 import type {
   CollectionPayload,
   LaunchMetaobjectSeed,
+  MetaobjectDefinitionSpec,
   PagePayload,
   ProductPayload,
   RetiredProductResult,
   ShopifyEnrichProductInput,
+  ShopifyMetaobjectDefinitionRecord,
   ShopifyEnrichProductResult,
   ShopifyCollectionRecord,
   ShopifyMetaobjectRecord,
@@ -61,6 +63,34 @@ type ProductUpdateResponse = {
 type ProductSetResponse = {
   productSet: {
     product: ShopifyProductRecord | null;
+    userErrors: ShopifyUserError[];
+  };
+};
+
+type CollectionUpdateResponse = {
+  collectionUpdate: {
+    collection: ShopifyCollectionRecord | null;
+    userErrors: ShopifyUserError[];
+  };
+};
+
+type PageUpdateResponse = {
+  pageUpdate: {
+    page: ShopifyPageRecord | null;
+    userErrors: ShopifyUserError[];
+  };
+};
+
+type MetaobjectDefinitionCreateResponse = {
+  metaobjectDefinitionCreate: {
+    metaobjectDefinition: ShopifyMetaobjectDefinitionRecord | null;
+    userErrors: ShopifyUserError[];
+  };
+};
+
+type MetaobjectDefinitionUpdateResponse = {
+  metaobjectDefinitionUpdate: {
+    metaobjectDefinition: ShopifyMetaobjectDefinitionRecord | null;
     userErrors: ShopifyUserError[];
   };
 };
@@ -145,9 +175,6 @@ const QUERIES = {
   collectionAddProducts: `#graphql
     mutation CollectionAddProducts($id: ID!, $productIds: [ID!]!) {
       collectionAddProducts(id: $id, productIds: $productIds) {
-        job {
-          id
-        }
         userErrors {
           field
           message
@@ -170,9 +197,40 @@ const QUERIES = {
       }
     }
   `,
+  collectionUpdate: `#graphql
+    mutation CollectionUpdate($input: CollectionInput!) {
+      collectionUpdate(input: $input) {
+        collection {
+          id
+          title
+          handle
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `,
   pageCreate: `#graphql
     mutation PageCreate($page: PageCreateInput!) {
       pageCreate(page: $page) {
+        page {
+          id
+          title
+          handle
+          isPublished
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `,
+  pageUpdate: `#graphql
+    mutation PageUpdate($id: ID!, $page: PageUpdateInput!) {
+      pageUpdate(id: $id, page: $page) {
         page {
           id
           title
@@ -266,7 +324,67 @@ const QUERIES = {
       }
     }
   `,
+  metaobjectDefinitions: `#graphql
+    query MetaobjectDefinitions($first: Int!) {
+      metaobjectDefinitions(first: $first) {
+        nodes {
+          id
+          type
+          name
+          fieldDefinitions {
+            key
+          }
+        }
+      }
+    }
+  `,
+  metaobjectDefinitionCreate: `#graphql
+    mutation MetaobjectDefinitionCreate($definition: MetaobjectDefinitionCreateInput!) {
+      metaobjectDefinitionCreate(definition: $definition) {
+        metaobjectDefinition {
+          id
+          type
+          name
+          fieldDefinitions {
+            key
+          }
+        }
+        userErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+  `,
+  metaobjectDefinitionUpdate: `#graphql
+    mutation MetaobjectDefinitionUpdate($id: ID!, $definition: MetaobjectDefinitionUpdateInput!) {
+      metaobjectDefinitionUpdate(id: $id, definition: $definition) {
+        metaobjectDefinition {
+          id
+          type
+          name
+          fieldDefinitions {
+            key
+          }
+        }
+        userErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+  `,
 };
+
+function normalizeMetaobjectType(type: string): string {
+  return type.replace(/^\$app:/, "").replace(/^app--\d+--/, "");
+}
+
+function metaobjectTypeMatches(actualType: string, expectedType: string): boolean {
+  return normalizeMetaobjectType(actualType) === normalizeMetaobjectType(expectedType);
+}
 
 async function shopifyGraphQL<T>(
   query: string,
@@ -435,6 +553,18 @@ export async function getPageByHandle(handle: string) {
   return findExistingPageByHandle(handle);
 }
 
+export async function listMetaobjectDefinitions(): Promise<ShopifyMetaobjectDefinitionRecord[]> {
+  const data = await shopifyGraphQL<{
+    metaobjectDefinitions: {
+      nodes: ShopifyMetaobjectDefinitionRecord[];
+    };
+  }>(QUERIES.metaobjectDefinitions, {
+    first: 50,
+  });
+
+  return data.metaobjectDefinitions.nodes;
+}
+
 async function getOnlineStorePublicationId(): Promise<string | null> {
   const data = await shopifyGraphQL<{
     publications: {
@@ -545,20 +675,18 @@ export async function createProduct(
     const existingProduct = await findExistingProductByHandle(product.handle);
 
     if (existingProduct) {
-      if (options?.publish || product.status === "ACTIVE") {
-        const updatedProduct =
-          existingProduct.status === "ACTIVE"
-            ? existingProduct
-            : await updateProductStatus(existingProduct.id, "ACTIVE");
-
-        await publishResource(updatedProduct.id);
-        return {
-          ...updatedProduct,
-          status: "ACTIVE",
-        };
-      }
-
-      return existingProduct;
+      return (
+        await enrichPublishedProductByHandle({
+          handle: product.handle,
+          title: product.title,
+          descriptionHtml: product.descriptionHtml,
+          productType: product.productType,
+          tags: product.tags,
+          seoTitle: product.seoTitle,
+          seoDescription: product.seoDescription,
+          publish: options?.publish ?? product.status === "ACTIVE",
+        })
+      ).product;
     }
   }
 
@@ -626,10 +754,33 @@ export async function createCollection(
     const existingCollection = await findExistingCollectionByHandle(collection.handle);
 
     if (existingCollection) {
-      const published = options?.publish ? await publishResource(existingCollection.id) : false;
+      const updatedCollection = await shopifyGraphQL<CollectionUpdateResponse>(
+        QUERIES.collectionUpdate,
+        {
+          input: {
+            id: existingCollection.id,
+            title: collection.title,
+            handle: collection.handle,
+            descriptionHtml: collection.descriptionHtml,
+            seo: {
+              title: collection.seoTitle,
+              description: collection.seoDescription,
+            },
+          },
+        },
+      ).then((result) => {
+        assertNoUserErrors("collectionUpdate", result.collectionUpdate.userErrors);
+
+        if (!result.collectionUpdate.collection) {
+          throw new Error("Collection update returned null collection");
+        }
+
+        return result.collectionUpdate.collection;
+      });
+      const published = options?.publish ? await publishResource(updatedCollection.id) : false;
 
       return {
-        collection: existingCollection,
+        collection: updatedCollection,
         published,
       };
     }
@@ -669,7 +820,23 @@ export async function createPage(page: PagePayload): Promise<ShopifyPageRecord> 
     const existingPage = await findExistingPageByHandle(page.handle);
 
     if (existingPage) {
-      return existingPage;
+      return await shopifyGraphQL<PageUpdateResponse>(QUERIES.pageUpdate, {
+        id: existingPage.id,
+        page: {
+          title: page.title,
+          handle: page.handle,
+          body: page.bodyHtml,
+          isPublished: true,
+        },
+      }).then((result) => {
+        assertNoUserErrors("pageUpdate", result.pageUpdate.userErrors);
+
+        if (!result.pageUpdate.page) {
+          throw new Error("Page update returned null page");
+        }
+
+        return result.pageUpdate.page;
+      });
     }
   }
 
@@ -722,13 +889,24 @@ async function addProductToCollectionByHandle(
     throw new Error(`Collection not found for handle: ${collectionHandle}`);
   }
 
+  await addProductsToCollection(collection.id, [productId]);
+}
+
+async function addProductsToCollection(
+  collectionId: string,
+  productIds: string[],
+): Promise<void> {
+  if (!productIds.length) {
+    return;
+  }
+
   const data = await shopifyGraphQL<{
     collectionAddProducts: {
       userErrors: ShopifyUserError[];
     };
   }>(QUERIES.collectionAddProducts, {
-    id: collection.id,
-    productIds: [productId],
+    id: collectionId,
+    productIds: Array.from(new Set(productIds)),
   });
 
   const nonDuplicateErrors = data.collectionAddProducts.userErrors.filter(
@@ -912,4 +1090,91 @@ export async function upsertMetaobject(
   }
 
   return upsertedMetaobject;
+}
+
+export async function ensureMetaobjectDefinitions(
+  definitions: MetaobjectDefinitionSpec[],
+): Promise<{
+  created: ShopifyMetaobjectDefinitionRecord[];
+  updated: ShopifyMetaobjectDefinitionRecord[];
+  existing: ShopifyMetaobjectDefinitionRecord[];
+}> {
+  const existingDefinitions = await listMetaobjectDefinitions();
+  const created: ShopifyMetaobjectDefinitionRecord[] = [];
+  const updated: ShopifyMetaobjectDefinitionRecord[] = [];
+  const existing: ShopifyMetaobjectDefinitionRecord[] = [];
+
+  for (const definition of definitions) {
+    const currentDefinition = existingDefinitions.find((entry) =>
+      metaobjectTypeMatches(entry.type, definition.type),
+    );
+    if (currentDefinition) {
+      const existingFieldKeys = new Set((currentDefinition.fieldDefinitions ?? []).map((field) => field.key));
+      const missingFields = definition.fieldDefinitions.filter(
+        (fieldDefinition) => !existingFieldKeys.has(fieldDefinition.key),
+      );
+
+      if (!missingFields.length) {
+        existing.push(currentDefinition);
+        continue;
+      }
+
+      const updateResult = await shopifyGraphQL<MetaobjectDefinitionUpdateResponse>(
+        QUERIES.metaobjectDefinitionUpdate,
+        {
+          id: currentDefinition.id,
+          definition: {
+            name: definition.name,
+            description: definition.description,
+            displayNameKey: definition.displayNameKey,
+            access: definition.access,
+            fieldDefinitions: missingFields.map((fieldDefinition) => ({
+              create: fieldDefinition,
+            })),
+          },
+        },
+      );
+
+      assertNoUserErrors(
+        "metaobjectDefinitionUpdate",
+        updateResult.metaobjectDefinitionUpdate.userErrors,
+      );
+
+      if (!updateResult.metaobjectDefinitionUpdate.metaobjectDefinition) {
+        throw new Error(`Metaobject definition update returned null for type: ${definition.type}`);
+      }
+
+      updated.push(updateResult.metaobjectDefinitionUpdate.metaobjectDefinition);
+      continue;
+    }
+
+    const data = await shopifyGraphQL<MetaobjectDefinitionCreateResponse>(
+      QUERIES.metaobjectDefinitionCreate,
+      {
+        definition: {
+          type: definition.type,
+          name: definition.name,
+          description: definition.description,
+          displayNameKey: definition.displayNameKey,
+          access: definition.access,
+          fieldDefinitions: definition.fieldDefinitions,
+        },
+      },
+    );
+
+    assertNoUserErrors("metaobjectDefinitionCreate", data.metaobjectDefinitionCreate.userErrors);
+
+    if (!data.metaobjectDefinitionCreate.metaobjectDefinition) {
+      throw new Error(`Metaobject definition creation returned null for type: ${definition.type}`);
+    }
+
+    created.push(data.metaobjectDefinitionCreate.metaobjectDefinition);
+    existingDefinitions.push(data.metaobjectDefinitionCreate.metaobjectDefinition);
+  }
+
+  return {
+    created,
+    updated,
+    existing,
+  };
 }

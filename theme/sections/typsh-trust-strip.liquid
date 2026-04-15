@@ -1,0 +1,140 @@
+{{ 'typsh-homepage.css' | asset_url | stylesheet_tag }}
+
+<section class="typsh-section typsh-trust-strip">
+  <div class="typsh-shell">
+    <div class="typsh-trust-grid">
+      <article class="typsh-card typsh-trust-card">
+        <div class="typsh-icon-chip">{% render 'typsh-icon', icon: section.settings.icon_one %}</div>
+        <h2 class="typsh-card-title">{{ section.settings.title_one }}</h2>
+        <p class="typsh-card-copy">{{ section.settings.detail_one }}</p>
+      </article>
+
+      <article class="typsh-card typsh-trust-card">
+        <div class="typsh-icon-chip">{% render 'typsh-icon', icon: section.settings.icon_two %}</div>
+        <h2 class="typsh-card-title">{{ section.settings.title_two }}</h2>
+        <p class="typsh-card-copy">{{ section.settings.detail_two }}</p>
+      </article>
+
+      <article class="typsh-card typsh-trust-card">
+        <div class="typsh-icon-chip">{% render 'typsh-icon', icon: section.settings.icon_three %}</div>
+        <h2 class="typsh-card-title">{{ section.settings.title_three }}</h2>
+        <p class="typsh-card-copy">{{ section.settings.detail_three }}</p>
+      </article>
+
+      <article class="typsh-card typsh-trust-card">
+        <div class="typsh-icon-chip">{% render 'typsh-icon', icon: section.settings.icon_four %}</div>
+        <h2 class="typsh-card-title">{{ section.settings.title_four }}</h2>
+        <p class="typsh-card-copy">{{ section.settings.detail_four }}</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "typsh Trust strip",
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon_one",
+      "label": "Icon 1",
+      "default": "truck",
+      "options": [
+        { "value": "truck", "label": "Truck" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "message", "label": "Message" },
+        { "value": "spark", "label": "Spark" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "title_one",
+      "label": "Title 1",
+      "default": "Free US Shipping"
+    },
+    {
+      "type": "text",
+      "id": "detail_one",
+      "label": "Detail 1",
+      "default": "Pricing already includes shipping for launch orders."
+    },
+    {
+      "type": "select",
+      "id": "icon_two",
+      "label": "Icon 2",
+      "default": "shield",
+      "options": [
+        { "value": "truck", "label": "Truck" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "message", "label": "Message" },
+        { "value": "spark", "label": "Spark" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "title_two",
+      "label": "Title 2",
+      "default": "Secure Checkout"
+    },
+    {
+      "type": "text",
+      "id": "detail_two",
+      "label": "Detail 2",
+      "default": "Shopify checkout with trusted payment rails."
+    },
+    {
+      "type": "select",
+      "id": "icon_three",
+      "label": "Icon 3",
+      "default": "message",
+      "options": [
+        { "value": "truck", "label": "Truck" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "message", "label": "Message" },
+        { "value": "spark", "label": "Spark" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "title_three",
+      "label": "Title 3",
+      "default": "Responsive Support"
+    },
+    {
+      "type": "text",
+      "id": "detail_three",
+      "label": "Detail 3",
+      "default": "Clear help from support@typsh.it when something goes wrong."
+    },
+    {
+      "type": "select",
+      "id": "icon_four",
+      "label": "Icon 4",
+      "default": "spark",
+      "options": [
+        { "value": "truck", "label": "Truck" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "message", "label": "Message" },
+        { "value": "spark", "label": "Spark" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "title_four",
+      "label": "Title 4",
+      "default": "Curated Products Only"
+    },
+    {
+      "type": "text",
+      "id": "detail_four",
+      "label": "Detail 4",
+      "default": "Every item is selected for usefulness, not endless catalog sprawl."
+    }
+  ],
+  "presets": [
+    {
+      "name": "typsh Trust strip"
+    }
+  ]
+}
+{% endschema %}

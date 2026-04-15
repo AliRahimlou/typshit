@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="220" viewBox="0 0 920 220" role="img" aria-labelledby="title desc">
+  <title id="title">TYPSH.IT animated neon wordmark</title>
+  <desc id="desc">Transparent uppercase TYPSH.IT wordmark inside a neon outline box that cycles through cyan, lime, magenta, and violet.</desc>
+  <defs>
+    <filter id="typsh-neon-glow" x="-14%" y="-42%" width="128%" height="190%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur-1" />
+      <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur-2" />
+      <feMerge>
+        <feMergeNode in="blur-2" />
+        <feMergeNode in="blur-1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <g transform="translate(76 60)" fill="none" stroke-linejoin="miter" stroke-linecap="square">
+    <g filter="url(#typsh-neon-glow)" opacity="0.34" stroke-width="11.5">
+      <animate attributeName="stroke" values="#16B4FF;#7CFF2A;#FF47B7;#8B5CFF;#16B4FF" dur="11s" repeatCount="indefinite" />
+      <rect x="0" y="0" width="768" height="108" />
+      <text x="28" y="79" textLength="712" lengthAdjust="spacingAndGlyphs" font-family="Arial Black, Impact, Haettenschweiler, sans-serif" font-size="86" font-weight="900" letter-spacing="0">TYPSH.IT</text>
+    </g>
+    <g stroke-width="4.25">
+      <animate attributeName="stroke" values="#16B4FF;#7CFF2A;#FF47B7;#8B5CFF;#16B4FF" dur="11s" repeatCount="indefinite" />
+      <rect x="0" y="0" width="768" height="108" />
+      <text x="28" y="79" textLength="712" lengthAdjust="spacingAndGlyphs" font-family="Arial Black, Impact, Haettenschweiler, sans-serif" font-size="86" font-weight="900" letter-spacing="0">TYPSH.IT</text>
+    </g>
+  </g>
+</svg>

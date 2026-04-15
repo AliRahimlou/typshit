@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#0F1115">
+    {{ content_for_header }}
+  </head>
+  <body>
+    <main id="MainContent" role="main">
+      {{ content_for_layout }}
+    </main>
+  </body>
+</html>

@@ -1,0 +1,154 @@
+{
+  "sections": {
+    "main": {
+      "type": "typsh-product-main",
+      "settings": {
+        "secondary_action_url": "/pages/track-order"
+      },
+      "blocks": {
+        "trust_1": {
+          "type": "trust_item",
+          "settings": {
+            "title": "Built for mobile conversion",
+            "copy": "Sticky ATC, quick media scanning, and clear checkout actions keep the page app-like instead of cluttered."
+          }
+        },
+        "trust_2": {
+          "type": "trust_item",
+          "settings": {
+            "title": "Transparent support",
+            "copy": "Shipping, returns, and support cues stay close to the buy action so shoppers do not need to hunt for trust."
+          }
+        },
+        "trust_3": {
+          "type": "trust_item",
+          "settings": {
+            "title": "Single focused upsell",
+            "copy": "The pairing block is intentionally restrained so it lifts AOV without creating decision overload."
+          }
+        },
+        "accordion_1": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Shipping and returns",
+            "body": "<p>Use concise shipping expectations and a clear damaged-or-defective support policy so checkout feels lower risk.</p>"
+          }
+        },
+        "accordion_2": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Materials or specs",
+            "body": "<p>Surface the practical details that matter to buying confidence instead of dumping a giant spec sheet at the top of the page.</p>"
+          }
+        },
+        "accordion_3": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Who this is best for",
+            "body": "<p>Use a fast answer here so paid-social traffic can self-qualify without scrolling through too much copy.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "trust_1",
+        "trust_2",
+        "trust_3",
+        "accordion_1",
+        "accordion_2",
+        "accordion_3"
+      ]
+    },
+    "ugc": {
+      "type": "typsh-ugc-reels",
+      "settings": {
+        "heading": "Social-first proof around the buy flow"
+      },
+      "blocks": {
+        "ugc_1": {
+          "type": "reel",
+          "settings": {
+            "badge": "Creator cut",
+            "author": "@launchcreator",
+            "title": "Show the product doing one obvious job really well",
+            "caption": "Use short-form style captions and vertical media crops so the section feels shareable and native to paid-social traffic.",
+            "link_label": "View product"
+          }
+        },
+        "ugc_2": {
+          "type": "reel",
+          "settings": {
+            "badge": "UGC",
+            "author": "@realcustomer",
+            "title": "Use-case media beats generic review stars",
+            "caption": "Keep the proof visual and practical: before-and-after, reaction, routine fit, or context shot.",
+            "link_label": "See details"
+          }
+        },
+        "ugc_3": {
+          "type": "reel",
+          "settings": {
+            "badge": "As seen in feed",
+            "author": "@typsh.it",
+            "title": "Design this like a mini swipeable reel row",
+            "caption": "It should feel closer to content discovery than a legacy testimonial carousel.",
+            "link_label": "Shop now"
+          }
+        }
+      },
+      "block_order": [
+        "ugc_1",
+        "ugc_2",
+        "ugc_3"
+      ]
+    },
+    "faq": {
+      "type": "typsh-product-faq",
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What problem does this solve?",
+            "answer": "<p>Answer in the same direct language used in paid creative so the product page feels consistent with the ad promise.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "How fast is shipping?",
+            "answer": "<p>Clarify timing, tracking, and what support should do if something looks delayed.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "What if the item arrives damaged?",
+            "answer": "<p>Keep the support route plain, visible, and reassuring without pushing shoppers into a separate policy maze.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Who is this best for?",
+            "answer": "<p>Use this slot to help the shopper decide fast whether the product fits their routine or use case.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4"
+      ]
+    },
+    "recommendations": {
+      "type": "typsh-recommendations",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "ugc",
+    "faq",
+    "recommendations"
+  ]
+}

@@ -1,0 +1,155 @@
+{% liquid
+  assign hero_product = all_products[section.settings.hero_product_handle]
+  assign hero_image = section.settings.hero_image
+  if hero_image == blank and hero_product != blank and hero_product.featured_media != blank
+    assign hero_image = hero_product.featured_media.preview_image
+  endif
+
+  assign product_price = blank
+  if hero_product != blank and hero_product.selected_or_first_available_variant != blank
+    assign product_price = hero_product.selected_or_first_available_variant.price
+  endif
+%}
+
+{{ 'typsh-homepage.css' | asset_url | stylesheet_tag }}
+
+<section class="typsh-section typsh-hero">
+  <div class="typsh-shell">
+    <div class="typsh-panel typsh-hero__panel">
+      <div>
+        {% if section.settings.eyebrow != blank %}
+          <p class="typsh-eyebrow">{{ section.settings.eyebrow }}</p>
+        {% endif %}
+
+        <h1 class="typsh-display">{{ section.settings.headline }}</h1>
+        <p class="typsh-lead">{{ section.settings.subheadline }}</p>
+
+        <div class="typsh-button-row">
+          <a class="typsh-button typsh-button--primary" href="{{ section.settings.primary_cta_url }}">{{ section.settings.primary_cta_label }}</a>
+          <a class="typsh-button typsh-button--secondary" href="{{ section.settings.secondary_cta_url }}">{{ section.settings.secondary_cta_label }}</a>
+        </div>
+
+        <ul class="typsh-meta-list" role="list">
+          {% if section.settings.point_one != blank %}
+            <li><span class="typsh-dot"></span><span>{{ section.settings.point_one }}</span></li>
+          {% endif %}
+          {% if section.settings.point_two != blank %}
+            <li><span class="typsh-dot"></span><span>{{ section.settings.point_two }}</span></li>
+          {% endif %}
+          {% if section.settings.point_three != blank %}
+            <li><span class="typsh-dot"></span><span>{{ section.settings.point_three }}</span></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="typsh-hero__visual">
+        <div class="typsh-media-frame typsh-media-frame--portrait">
+          {% if hero_image != blank %}
+            {{ hero_image | image_url: width: 1200 | image_tag: widths: '480, 720, 960, 1200', sizes: '(min-width: 990px) 42vw, 100vw', loading: 'eager', fetchpriority: 'high', alt: section.settings.headline }}
+          {% else %}
+            <div class="typsh-placeholder">Launch visual</div>
+          {% endif %}
+        </div>
+
+        <div class="typsh-hero__stats">
+          <div>
+            <span class="typsh-stat-label">Hero pick</span>
+            <p class="typsh-stat">{% if hero_product != blank %}{{ hero_product.title }}{% else %}Handheld Clothes Steamer{% endif %}</p>
+          </div>
+          <div>
+            <span class="typsh-stat-label">Free shipping</span>
+            <p class="typsh-stat">Built into price</p>
+          </div>
+          {% if product_price != blank %}
+            <div>
+              <span class="typsh-stat-label">Launch price</span>
+              <p class="typsh-stat">{{ product_price | money }}</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "typsh Hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Problem-solving gadgets for home and tech"
+    },
+    {
+      "type": "textarea",
+      "id": "headline",
+      "label": "Headline",
+      "default": "Useful Finds That Actually Make Life Easier"
+    },
+    {
+      "type": "textarea",
+      "id": "subheadline",
+      "label": "Subheadline",
+      "default": "Modern products for home, tech, and everyday convenience curated to solve real problems fast, without the junk-drawer feel of a random general store."
+    },
+    {
+      "type": "text",
+      "id": "primary_cta_label",
+      "label": "Primary CTA label",
+      "default": "Shop Best Sellers"
+    },
+    {
+      "type": "url",
+      "id": "primary_cta_url",
+      "label": "Primary CTA URL"
+    },
+    {
+      "type": "text",
+      "id": "secondary_cta_label",
+      "label": "Secondary CTA label",
+      "default": "See New Arrivals"
+    },
+    {
+      "type": "url",
+      "id": "secondary_cta_url",
+      "label": "Secondary CTA URL"
+    },
+    {
+      "type": "text",
+      "id": "hero_product_handle",
+      "label": "Hero product handle",
+      "default": "handheld-clothes-steamer"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image override"
+    },
+    {
+      "type": "text",
+      "id": "point_one",
+      "label": "Supporting point 1",
+      "default": "Free US shipping built into every order"
+    },
+    {
+      "type": "text",
+      "id": "point_two",
+      "label": "Supporting point 2",
+      "default": "Problem-solving products with clean merchandising"
+    },
+    {
+      "type": "text",
+      "id": "point_three",
+      "label": "Supporting point 3",
+      "default": "Fast answers and responsive support"
+    }
+  ],
+  "presets": [
+    {
+      "name": "typsh Hero"
+    }
+  ]
+}
+{% endschema %}
