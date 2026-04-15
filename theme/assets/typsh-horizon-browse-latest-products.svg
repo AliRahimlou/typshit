@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Browse our latest products</title>
+  <desc id="desc">Branded typsh.it merchandising graphic featuring launch-product cards for home fixes, tech essentials, and creator setup finds.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F1115" />
+      <stop offset="55%" stop-color="#151A24" />
+      <stop offset="100%" stop-color="#0B1321" />
+    </linearGradient>
+    <linearGradient id="cardStroke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#53A0FF" />
+      <stop offset="100%" stop-color="#7CE1FF" />
+    </linearGradient>
+    <linearGradient id="accentGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#6EE7FF" stop-opacity="0.15" />
+    </linearGradient>
+    <radialGradient id="orbA" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="orbB" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7CE1FF" stop-opacity="0.26" />
+      <stop offset="100%" stop-color="#7CE1FF" stop-opacity="0" />
+    </radialGradient>
+    <filter id="softBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="24" />
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1200" fill="url(#bg)" />
+  <circle cx="260" cy="214" r="250" fill="url(#orbA)" filter="url(#softBlur)" />
+  <circle cx="1305" cy="220" r="210" fill="url(#orbB)" filter="url(#softBlur)" />
+  <circle cx="1350" cy="980" r="290" fill="url(#orbA)" filter="url(#softBlur)" />
+
+  <g opacity="0.12" stroke="#A9B1BC">
+    <path d="M90 90H1510" />
+    <path d="M90 210H1510" />
+    <path d="M90 330H1510" />
+    <path d="M90 450H1510" />
+    <path d="M90 570H1510" />
+    <path d="M90 690H1510" />
+    <path d="M90 810H1510" />
+    <path d="M90 930H1510" />
+    <path d="M90 1050H1510" />
+    <path d="M110 70V1130" />
+    <path d="M290 70V1130" />
+    <path d="M470 70V1130" />
+    <path d="M650 70V1130" />
+    <path d="M830 70V1130" />
+    <path d="M1010 70V1130" />
+    <path d="M1190 70V1130" />
+    <path d="M1370 70V1130" />
+  </g>
+
+  <g>
+    <rect x="92" y="110" width="610" height="980" rx="34" fill="#111722" fill-opacity="0.88" stroke="#252B36" />
+    <rect x="126" y="148" width="145" height="34" rx="17" fill="#152033" stroke="#263348" />
+    <text x="147" y="171" fill="#7CE1FF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.8">LATEST PICKS</text>
+
+    <text x="126" y="282" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="700">Browse Our</text>
+    <text x="126" y="372" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="700">Latest</text>
+    <text x="126" y="462" fill="#53A0FF" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="700">Products</text>
+
+    <text x="126" y="540" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="28">
+      Problem-solving finds for home, tech,
+    </text>
+    <text x="126" y="578" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="28">
+      and creator setups without the clutter.
+    </text>
+
+    <g transform="translate(126 646)">
+      <rect width="170" height="48" rx="24" fill="#192233" stroke="#2A3A52" />
+      <text x="25" y="31" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Free US Shipping</text>
+    </g>
+    <g transform="translate(312 646)">
+      <rect width="148" height="48" rx="24" fill="#192233" stroke="#2A3A52" />
+      <text x="27" y="31" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Curated Picks</text>
+    </g>
+    <g transform="translate(476 646)">
+      <rect width="138" height="48" rx="24" fill="#192233" stroke="#2A3A52" />
+      <text x="34" y="31" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Fast Answers</text>
+    </g>
+
+    <rect x="126" y="752" width="542" height="266" rx="28" fill="#0E1520" stroke="#252B36" />
+    <rect x="156" y="782" width="84" height="84" rx="20" fill="url(#accentGlow)" />
+    <text x="275" y="826" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Useful Finds That</text>
+    <text x="275" y="870" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Actually Make Life Easier</text>
+    <text x="275" y="924" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="22">Shop launch picks across Home Fixes, Tech Essentials,</text>
+    <text x="275" y="954" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="22">Creator Setup, and Problem Solvers.</text>
+    <path d="M190 805h28m-28 18h42m-42 18h36" stroke="#F7F8FA" stroke-width="6" stroke-linecap="round" />
+    <circle cx="200" cy="850" r="16" fill="none" stroke="#F7F8FA" stroke-width="6" />
+    <path d="M200 866v24m-20 0h40" stroke="#F7F8FA" stroke-width="6" stroke-linecap="round" />
+  </g>
+
+  <g transform="translate(744 110)">
+    <g transform="translate(0 0)">
+      <rect width="364" height="298" rx="28" fill="#111722" fill-opacity="0.95" stroke="url(#cardStroke)" />
+      <rect x="28" y="28" width="110" height="34" rx="17" fill="#17253B" />
+      <text x="50" y="50" fill="#7CE1FF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.4">HOME FIXES</text>
+      <text x="28" y="234" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Handheld</text>
+      <text x="28" y="274" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Clothes Steamer</text>
+      <text x="28" y="214" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="20">Wrinkle-free outfits in minutes</text>
+      <path d="M247 78h42v116c0 18-12 30-30 30h-12z" fill="#1C2A3F" stroke="#7CE1FF" stroke-width="5" />
+      <path d="M233 86h18v24h-18z" fill="#111722" stroke="#7CE1FF" stroke-width="5" />
+      <path d="M256 98c10 0 24 7 24 20" fill="none" stroke="#7CE1FF" stroke-width="5" stroke-linecap="round" />
+      <path d="M320 102c14 11 17 31 7 46" fill="none" stroke="#53A0FF" stroke-width="5" stroke-linecap="round" />
+      <path d="M333 90c16 13 21 38 10 58" fill="none" stroke="#53A0FF" stroke-width="5" stroke-linecap="round" opacity="0.7" />
+    </g>
+
+    <g transform="translate(392 0)">
+      <rect width="364" height="298" rx="28" fill="#111722" fill-opacity="0.95" stroke="url(#cardStroke)" />
+      <rect x="28" y="28" width="122" height="34" rx="17" fill="#17253B" />
+      <text x="47" y="50" fill="#7CE1FF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.4">TECH ESSENTIALS</text>
+      <text x="28" y="234" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Wireless</text>
+      <text x="28" y="274" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Charging Station</text>
+      <text x="28" y="214" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="20">One compact desk-side hub</text>
+      <rect x="231" y="164" width="108" height="22" rx="11" fill="#1C2A3F" stroke="#7CE1FF" stroke-width="5" />
+      <path d="M244 160l20-46h44l18 46" fill="#111722" stroke="#7CE1FF" stroke-width="5" />
+      <rect x="258" y="74" width="38" height="62" rx="11" fill="#111722" stroke="#7CE1FF" stroke-width="5" />
+      <circle cx="321" cy="103" r="24" fill="#111722" stroke="#53A0FF" stroke-width="5" />
+      <path d="M321 83v12m0 16v12m-20-20h12m16 0h12" stroke="#53A0FF" stroke-width="4" stroke-linecap="round" />
+    </g>
+
+    <g transform="translate(0 336)">
+      <rect width="364" height="298" rx="28" fill="#111722" fill-opacity="0.95" stroke="url(#cardStroke)" />
+      <rect x="28" y="28" width="146" height="34" rx="17" fill="#17253B" />
+      <text x="46" y="50" fill="#7CE1FF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.4">PROBLEM SOLVERS</text>
+      <text x="28" y="234" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Magnetic</text>
+      <text x="28" y="274" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Screen Door</text>
+      <text x="28" y="214" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="20">Fresh air in, bugs out</text>
+      <rect x="233" y="82" width="96" height="126" rx="16" fill="#111722" stroke="#7CE1FF" stroke-width="5" />
+      <path d="M281 82v126" stroke="#7CE1FF" stroke-width="5" />
+      <path d="M244 102h74M244 128h74M244 154h74M244 180h74" stroke="#53A0FF" stroke-width="3" opacity="0.75" />
+      <circle cx="278" cy="144" r="7" fill="#7CE1FF" />
+      <circle cx="284" cy="144" r="7" fill="#7CE1FF" />
+    </g>
+
+    <g transform="translate(392 336)">
+      <rect width="364" height="298" rx="28" fill="#111722" fill-opacity="0.95" stroke="url(#cardStroke)" />
+      <rect x="28" y="28" width="128" height="34" rx="17" fill="#17253B" />
+      <text x="49" y="50" fill="#7CE1FF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.4">CREATOR SETUP</text>
+      <text x="28" y="234" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Ring Light</text>
+      <text x="28" y="274" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Starter Pick</text>
+      <text x="28" y="214" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="20">Cleaner calls and better content</text>
+      <circle cx="286" cy="122" r="46" fill="none" stroke="#7CE1FF" stroke-width="10" />
+      <circle cx="286" cy="122" r="18" fill="#111722" stroke="#53A0FF" stroke-width="4" />
+      <path d="M286 168v32m-28 36 28-36 28 36m-18 0h-20" stroke="#7CE1FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+
+    <g transform="translate(0 674)">
+      <rect width="756" height="416" rx="30" fill="#0E1520" stroke="#252B36" />
+      <text x="34" y="64" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Shop by lane</text>
+      <text x="34" y="100" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="22">Clean merchandising for curated problem-solving finds</text>
+
+      <g transform="translate(34 144)">
+        <rect width="160" height="92" rx="24" fill="#131D2B" stroke="#2A3A52" />
+        <text x="24" y="39" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Home Fixes</text>
+        <text x="24" y="68" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="16">Steamer, drain care</text>
+      </g>
+      <g transform="translate(212 144)">
+        <rect width="176" height="92" rx="24" fill="#131D2B" stroke="#2A3A52" />
+        <text x="24" y="39" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Tech Essentials</text>
+        <text x="24" y="68" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="16">Charging, desk cleanup</text>
+      </g>
+      <g transform="translate(406 144)">
+        <rect width="168" height="92" rx="24" fill="#131D2B" stroke="#2A3A52" />
+        <text x="24" y="39" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Creator Setup</text>
+        <text x="24" y="68" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="16">Lighting and content</text>
+      </g>
+      <g transform="translate(592 144)">
+        <rect width="130" height="92" rx="24" fill="#131D2B" stroke="#2A3A52" />
+        <text x="24" y="39" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Bestsellers</text>
+        <text x="24" y="68" fill="#A9B1BC" font-family="Arial, Helvetica, sans-serif" font-size="16">Quick wins</text>
+      </g>
+
+      <g transform="translate(34 278)">
+        <rect width="688" height="104" rx="24" fill="#111722" stroke="url(#cardStroke)" />
+        <text x="30" y="43" fill="#53A0FF" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="1.4">FEATURED SET</text>
+        <text x="30" y="78" fill="#F7F8FA" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Steamer, Screen Door, Charging Station, Ring Light</text>
+      </g>
+    </g>
+  </g>
+</svg>
