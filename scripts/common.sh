@@ -6,6 +6,19 @@ repo_root() {
   cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd
 }
 
+git_dir() {
+  local root
+  local dir
+  root="$(repo_root)"
+  dir="$(cd "$root" && git rev-parse --git-dir)"
+
+  if [[ "$dir" != /* ]]; then
+    dir="$root/$dir"
+  fi
+
+  printf '%s' "$dir"
+}
+
 load_env() {
   local root
   local line

@@ -55,6 +55,9 @@ SHOPIFY_THEME_PATH=theme
 SHOPIFY_THEME_ALLOW_LIVE=0
 SHOPIFY_THEME_PUBLISH_ON_PUSH=0
 SHOPIFY_CLI_THEME_TOKEN=
+SHOPIFY_DEPLOY_ON_GIT_PUSH=0
+SHOPIFY_GIT_PUSH_REMOTE=origin
+SHOPIFY_GIT_PUSH_BRANCH=main
 STORE_SYNC_ZENDROP_ASSETS=0
 ```
 
@@ -92,52 +95,31 @@ Notes:
 - `SHOPIFY_THEME_ID` is required so pushes stay non-interactive and deterministic.
 - `SHOPIFY_THEME_ALLOW_LIVE=1` adds `--allow-live` to the push command when you intentionally want to target the live theme.
 - `SHOPIFY_THEME_PUBLISH_ON_PUSH=1` adds `--publish` if you want the CLI to publish the pushed theme version.
-- `SHOPIFY_CLI_THEME_TOKEN` is optional for local use, but required for non-interactive CI theme pushes. Use a Theme Access password or an Admin API token.
+- `SHOPIFY_CLI_THEME_TOKEN` is optional for local use, and also works for non-interactive local automation. Use a Theme Access password or an Admin API token.
 - `STORE_SYNC_ZENDROP_ASSETS=1` adds a Zendrop asset refresh during `store:sync-data`.
 - Theme commands use the repo-local Shopify CLI binary first, then fall back to a global `shopify` binary if you already have one installed.
 
-## GitHub Deploys
+## Local Git Push Deploys
 
-The repo can now deploy to Shopify automatically from GitHub Actions when code is pushed to `main`.
+If you want a normal `git push` from your machine to also kick off a Shopify deploy, the repo now supports a tracked git hook setup.
 
-Workflow file:
+Setup:
 
-- `.github/workflows/deploy-shopify.yml`
+1. Run `npm run hooks:install`
+2. In your local `.env`, set `SHOPIFY_DEPLOY_ON_GIT_PUSH=1`
+3. Keep or adjust `SHOPIFY_GIT_PUSH_REMOTE=origin` and `SHOPIFY_GIT_PUSH_BRANCH=main`
+4. Push normally with `git push origin main`
 
-Required GitHub Actions secrets:
+Behavior:
 
-- `OPENAI_API_KEY`
-- `SHOPIFY_STORE_DOMAIN`
-- `SHOPIFY_THEME_STORE`
-- `SHOPIFY_THEME_ID`
-- `SHOPIFY_CLI_THEME_TOKEN`
+- Git has no client-side `post-push` hook, so this uses `pre-push` to start a detached background deploy while the Git push continues.
+- The Shopify deploy runs from your machine, not from GitHub Actions.
+- Only pushes targeting `SHOPIFY_GIT_PUSH_REMOTE` and `SHOPIFY_GIT_PUSH_BRANCH` trigger a deploy.
+- Only one Shopify deploy runs at a time. If another push happens while one deploy is already running, the duplicate request is skipped.
+- Deploy output is written to `.git/shopify-deploy.log`.
+- A Shopify deploy failure is logged locally, but it does not roll back or block the Git push.
 
-Shopify app auth secrets, choose one approach:
-
-- `SHOPIFY_ADMIN_ACCESS_TOKEN`
-- or both `SHOPIFY_CLIENT_ID` and `SHOPIFY_CLIENT_SECRET`
-
-Optional GitHub Actions secrets:
-
-- `SHOPIFY_API_VERSION`
-- `OPENAI_MODEL`
-- `SHOPIFY_THEME_ALLOW_LIVE`
-- `SHOPIFY_THEME_PUBLISH_ON_PUSH`
-- `STORE_SYNC_ZENDROP_ASSETS`
-- `ZENDROP_MCP_URL`
-- `ZENDROP_CLIENT_ID`
-- `ZENDROP_ACCESS_TOKEN`
-- `ZENDROP_REFRESH_TOKEN`
-
-The workflow runs `npm ci`, typechecks with `npm run check`, and then runs `npm run store:deploy`, which keeps GitHub deploys aligned with the local deploy command.
-
-Notes:
-
-- Automatic deploys are limited to pushes on `main` so feature branches do not publish store changes.
-- Theme auth in GitHub uses `SHOPIFY_CLI_THEME_TOKEN`, so no interactive `shopify auth login` session is required.
 - `SHOPIFY_THEME_ALLOW_LIVE=1` is recommended if `SHOPIFY_THEME_ID` points at the live theme.
-- If this workflow was just added to the repo, make one more push to a tracked path or use `workflow_dispatch` to force the first live validation run.
-- If you only want to deploy theme files or only store data, the workflow can be split later into separate jobs.
 
 ## Repo Layout
 
