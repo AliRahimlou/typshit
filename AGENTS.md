@@ -3,10 +3,12 @@
 ## Store And Theme Reality
 
 - This repo deploys to the live Shopify store `h2mrh0-jm.myshopify.com`.
-- The current live theme is `Spotlight` `#174906900781`.
-- The `theme/` directory in this repo is a partial Online Store 2.0 overlay, not a standalone theme replacement.
-- The deploy path intentionally pushes only `assets/`, `sections/`, `snippets/`, and `templates/` from `theme/`.
-- `layout/` and `config/` exist locally for theme tooling and validation, but the normal deploy script does not upload them.
+- The current live theme is `Horizon` `#180746944813`.
+- `Tinker` remains available as unpublished theme `#180746748205`.
+- The `theme_live/theme_export__typsh-it-horizon__15APR2026-0130pm.zip` export matches the current Horizon theme code; the observed drift is in `config/settings_data.json` and locale files, not core theme templates/sections/snippets/assets.
+- The `theme/` directory in this repo is now reset to a clean pulled Horizon baseline, and new local changes should target Horizon's native files unless there is a deliberate reason to reintroduce custom overlay sections.
+- The normal deploy path still pushes only `assets/`, `sections/`, `snippets/`, and `templates/` from `theme/`.
+- If a change touches `layout/`, `config/`, `locales/`, `blocks/`, or other full-theme files, do not assume `npm run theme:push` will upload it.
 
 ## Deploy Commands
 
@@ -23,6 +25,7 @@
   - one collection page
   - one content page such as `/pages/track-order`
 - Do not assume the homepage reflects the same cache state as product or content pages. Re-check the root path separately.
+- Run `npm run theme:list` before any deploy that targets the live storefront and confirm the configured `SHOPIFY_THEME_ID` still matches the `[live]` theme.
 - If the homepage alone looks stale after a successful push, make a real homepage-output change and redeploy before concluding the push failed.
 
 ## Content Guardrails
