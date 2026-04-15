@@ -43,6 +43,10 @@ COMMAND=(
   --only "templates/*"
 )
 
+if [[ -n "${SHOPIFY_CLI_THEME_TOKEN:-}" ]]; then
+  COMMAND+=(--password "$SHOPIFY_CLI_THEME_TOKEN")
+fi
+
 if [[ "${SHOPIFY_THEME_ALLOW_LIVE:-0}" == "1" ]]; then
   COMMAND+=(--allow-live)
 fi
