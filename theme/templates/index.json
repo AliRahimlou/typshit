@@ -91,7 +91,15 @@
     },
     "typsh_social_proof": {
       "type": "typsh-social-proof",
-      "settings": {}
+      "settings": {
+        "body": "Use these as concise trust cards that sound like real customer sentiment, not internal notes about a future reviews app.",
+        "author_one": "Early home-fixes customer",
+        "context_one": "Strong fit for the first trust row right after featured products.",
+        "author_two": "Desk setup buyer",
+        "context_two": "Useful for reinforcing creator and tech-oriented products without adding clutter.",
+        "author_three": "Support-conscious shopper",
+        "context_three": "Best placed near FAQ and policy confidence cues."
+      }
     },
     "typsh_why": {
       "type": "typsh-why-typsh",

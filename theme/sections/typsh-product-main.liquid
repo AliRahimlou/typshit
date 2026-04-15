@@ -14,7 +14,10 @@
 
   assign bundle_product = blank
   if section.settings.bundle_product != blank
-    assign bundle_product = all_products[section.settings.bundle_product]
+    assign bundle_product = section.settings.bundle_product
+    if bundle_product.url == blank
+      assign bundle_product = all_products[section.settings.bundle_product]
+    endif
   endif
 
   assign stock_label = 'Ready to ship'

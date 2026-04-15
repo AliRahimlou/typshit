@@ -1,7 +1,10 @@
 {% liquid
   assign featured_product = blank
   if section.settings.featured_product != blank
-    assign featured_product = all_products[section.settings.featured_product]
+    assign featured_product = section.settings.featured_product
+    if featured_product.url == blank
+      assign featured_product = all_products[section.settings.featured_product]
+    endif
   endif
 
   assign visual_image = section.settings.image

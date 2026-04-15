@@ -16,7 +16,10 @@
             assign reel_link = block.settings.link | default: ''
 
             if block.settings.product != blank
-              assign reel_product = all_products[block.settings.product]
+              assign reel_product = block.settings.product
+              if reel_product.url == blank
+                assign reel_product = all_products[block.settings.product]
+              endif
             elsif reel_link contains '/products/'
               assign reel_product_handle = reel_link | split: '/products/' | last | split: '#' | first | split: '?' | first
               assign reel_product = all_products[reel_product_handle]
