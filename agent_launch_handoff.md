@@ -30,6 +30,36 @@ curl http://localhost:8080/workflows/launch-strategy
 curl http://localhost:8080/workflows/sourcing-plan
 ```
 
+### Zendrop MCP status
+
+```bash
+curl http://localhost:8080/workflows/zendrop-status
+```
+
+### Zendrop catalog search
+
+```bash
+curl -X POST http://localhost:8080/workflows/zendrop-search-products \
+  -H "Content-Type: application/json" \
+  -d '{"query":"wireless charging station","market":"US","limit":10}'
+```
+
+### Zendrop add to import list
+
+```bash
+curl -X POST http://localhost:8080/workflows/zendrop-add-to-import-list \
+  -H "Content-Type: application/json" \
+  -d '{"productId":"your-zendrop-product-id"}'
+```
+
+### Zendrop publish to Shopify
+
+```bash
+curl -X POST http://localhost:8080/workflows/zendrop-publish-to-shopify \
+  -H "Content-Type: application/json" \
+  -d '{"productId":"your-zendrop-product-id"}'
+```
+
 ### Launch readiness audit
 
 ```bash
@@ -81,6 +111,7 @@ These cannot be fully completed from this backend alone without logging into thi
 - replace logo in the active theme
 - update homepage sections and navigation in the active theme
 - connect PayPal if not already finalized in admin
+- complete Zendrop OAuth and set `ZENDROP_ACCESS_TOKEN` for this backend
 
 ## Supplier Selection Rules
 

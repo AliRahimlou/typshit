@@ -41,9 +41,13 @@ SHOPIFY_CLIENT_SECRET=
 SHOPIFY_API_VERSION=2026-04
 OPENAI_API_KEY=sk-xxx
 OPENAI_MODEL=gpt-5.4
+ZENDROP_MCP_URL=https://app.zendrop.com/mcp/v1
+ZENDROP_ACCESS_TOKEN=
 ```
 
 For Dev Dashboard apps, this server can exchange `SHOPIFY_CLIENT_ID` and `SHOPIFY_CLIENT_SECRET` for a short-lived access token automatically. You won't see a permanent Admin token in the UI for that app model.
+
+For Zendrop MCP, complete OAuth in your MCP-capable agent client and set the resulting bearer token as `ZENDROP_ACCESS_TOKEN`. This backend uses the official Zendrop MCP URL and can then search products, add import candidates, and publish products to Shopify before enriching them.
 
 ## Run
 
@@ -105,6 +109,10 @@ Returns the encoded typsh.it launch strategy and operating decisions for agents 
 ### `GET /workflows/sourcing-plan`
 
 Returns the supplier-platform sourcing manifest, target margins, search terms, and manual connection requirements for the five-product launch catalog.
+
+### `GET /workflows/zendrop-status`
+
+Checks whether Zendrop MCP is configured and lists the discovered MCP tools when the Zendrop access token is valid.
 
 ### `GET /workflows/launch-readiness`
 
@@ -176,6 +184,28 @@ Request:
 }
 ```
 
+### `POST /workflows/zendrop-search-products`
+
+Searches Zendrop catalog through MCP using a source-first workflow.
+
+Request:
+
+```json
+{
+  "query": "wireless charging station",
+  "market": "US",
+  "limit": 10
+}
+```
+
+### `POST /workflows/zendrop-add-to-import-list`
+
+Adds a Zendrop product to the import list before Shopify publish.
+
+### `POST /workflows/zendrop-publish-to-shopify`
+
+Publishes a Zendrop-linked product to Shopify so fulfillment stays connected.
+
 ## First Launch Command
 
 Preview the seeded `typsh.it` launch assets:
@@ -203,6 +233,8 @@ curl -X POST http://localhost:8080/agent/execute \
 ```
 
 The agent can also retire legacy products via the `retire_product` tool when given a goal like retiring old handles from the storefront.
+
+The agent also supports `zendrop_search_products`, `zendrop_add_to_import_list`, `zendrop_publish_to_shopify`, and `shopify_enrich_published_product` for a Zendrop-first sourcing flow.
 
 ## Notes
 
