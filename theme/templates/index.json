@@ -89,7 +89,7 @@
         "ugc_3"
       ]
     },
-    "typsh_social_proof": {
+    "typsh_social_proof_main": {
       "type": "typsh-social-proof",
       "settings": {
         "body": "Use these as concise trust cards that sound like real customer sentiment, not internal notes about a future reviews app.",
@@ -129,7 +129,7 @@
     "typsh_hero_product",
     "typsh_bundle_row",
     "typsh_ugc",
-    "typsh_social_proof",
+    "typsh_social_proof_main",
     "typsh_why",
     "typsh_faq",
     "typsh_email",
