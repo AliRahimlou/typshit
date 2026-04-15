@@ -136,6 +136,7 @@ Notes:
 - Automatic deploys are limited to pushes on `main` so feature branches do not publish store changes.
 - Theme auth in GitHub uses `SHOPIFY_CLI_THEME_TOKEN`, so no interactive `shopify auth login` session is required.
 - `SHOPIFY_THEME_ALLOW_LIVE=1` is recommended if `SHOPIFY_THEME_ID` points at the live theme.
+- If this workflow was just added to the repo, make one more push to a tracked path or use `workflow_dispatch` to force the first live validation run.
 - If you only want to deploy theme files or only store data, the workflow can be split later into separate jobs.
 
 ## Repo Layout
