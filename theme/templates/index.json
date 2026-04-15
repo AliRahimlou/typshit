@@ -1,5 +1,9 @@
 {
   "sections": {
+    "typsh_home_header": {
+      "type": "typsh-home-header",
+      "settings": {}
+    },
     "typsh_hero": {
       "type": "typsh-hero",
       "settings": {
@@ -102,9 +106,14 @@
     "typsh_email": {
       "type": "typsh-email-capture",
       "settings": {}
+    },
+    "typsh_home_footer": {
+      "type": "typsh-home-footer",
+      "settings": {}
     }
   },
   "order": [
+    "typsh_home_header",
     "typsh_hero",
     "typsh_trust_strip",
     "typsh_featured_products",
@@ -115,6 +124,7 @@
     "typsh_social_proof",
     "typsh_why",
     "typsh_faq",
-    "typsh_email"
+    "typsh_email",
+    "typsh_home_footer"
   ]
 }

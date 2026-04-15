@@ -1,0 +1,173 @@
+{{ 'typsh-shell.css' | asset_url | stylesheet_tag }}
+{{ 'typsh-commerce.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'typsh-commerce.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign nav_items = 'Home|/,Shop|/collections/all,Best Sellers|/collections/best-sellers,Track Order|/pages/track-order,FAQ|/pages/faq,Contact|/pages/contact' | split: ','
+  assign use_animated_logo = section.settings.use_animated_logo
+  if use_animated_logo == nil
+    assign use_animated_logo = true
+  endif
+-%}
+
+{% if section.settings.show_announcement and section.settings.announcement_text != blank %}
+  {% if section.settings.announcement_link != blank %}
+    <a class="typsh-commerce-announcement" href="{{ section.settings.announcement_link }}">
+      <span class="typsh-commerce-announcement__inner">
+        {% if section.settings.announcement_badge != blank %}
+          <span class="typsh-commerce-announcement__badge">{{ section.settings.announcement_badge }}</span>
+        {% endif %}
+        <span>{{ section.settings.announcement_text }}</span>
+      </span>
+    </a>
+  {% else %}
+    <div class="typsh-commerce-announcement">
+      <div class="typsh-commerce-announcement__inner">
+        {% if section.settings.announcement_badge != blank %}
+          <span class="typsh-commerce-announcement__badge">{{ section.settings.announcement_badge }}</span>
+        {% endif %}
+        <span>{{ section.settings.announcement_text }}</span>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+<section class="typsh-shell-header">
+  <div class="typsh-shell-header__inner page-width">
+    <h1 class="typsh-shell-header__brand">
+      <a href="{{ routes.root_url }}" class="typsh-shell-header__brand" aria-label="{{ shop.name | escape }}">
+        {% render 'typsh-brand-logo', animated: use_animated_logo, width: section.settings.logo_width, alt: shop.name %}
+      </a>
+    </h1>
+
+    <nav class="typsh-shell-nav" aria-label="Primary">
+      <ul class="typsh-shell-nav__list" role="list">
+        {% for item in nav_items %}
+          {% assign item_parts = item | split: '|' %}
+          {% assign item_label = item_parts[0] %}
+          {% assign item_href = item_parts[1] %}
+          <li>
+            <a
+              href="{{ item_href }}"
+              class="typsh-shell-nav__link{% if request.path == item_href %} typsh-shell-nav__link--active{% endif %}"
+            >
+              {{ item_label }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <div class="typsh-shell-header__actions">
+      <a class="typsh-shell-header__action" href="{{ routes.cart_url }}" data-cart-toggle aria-haspopup="dialog" aria-expanded="false">Cart <span data-cart-count>{% if cart.item_count > 0 %}({{ cart.item_count }}){% endif %}</span></a>
+    </div>
+  </div>
+</section>
+
+<div class="typsh-cart-drawer" data-typsh-cart-drawer hidden>
+  <button class="typsh-cart-drawer__overlay" type="button" data-typsh-cart-overlay aria-label="Close cart drawer"></button>
+  <aside class="typsh-cart-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="TypshHomeCartHeading">
+    <div class="typsh-cart-drawer__header">
+      <div class="typsh-commerce-grid" style="gap: 6px;">
+        <p class="typsh-commerce-kicker">Low-friction checkout</p>
+        <h2 class="typsh-commerce-cart__heading" id="TypshHomeCartHeading">Your cart</h2>
+      </div>
+      <button class="typsh-commerce-cart__close" type="button" data-cart-close>Close</button>
+    </div>
+
+    <p class="typsh-commerce-empty" data-typsh-cart-empty {% if cart.item_count > 0 %}hidden{% endif %}>Your cart is empty. Keep browsing the launch catalog and use quick add to preserve momentum.</p>
+
+    <div class="typsh-cart-drawer__items" data-typsh-cart-items>
+      {% for item in cart.items %}
+        <article class="typsh-cart-line" data-cart-line-key="{{ item.key }}">
+          <a class="typsh-cart__image" href="{{ item.url }}">
+            {% if item.image != blank %}
+              {{ item.image | image_url: width: 300 | image_tag: widths: '120, 180, 240, 300', sizes: '88px', loading: 'lazy', alt: item.product_title }}
+            {% else %}
+              <div class="typsh-commerce-empty" style="display:grid;place-items:center;height:100%;">No image</div>
+            {% endif %}
+          </a>
+          <div class="typsh-cart-line__meta">
+            <div class="typsh-commerce-grid" style="gap:6px;">
+              <a class="typsh-cart-line__title" href="{{ item.url }}">{{ item.product_title }}</a>
+              <p class="typsh-commerce-meta-text">{{ item.variant.title | default: 'Default option' }}</p>
+              <p class="typsh-commerce-meta-text">{{ item.final_line_price | money }}</p>
+            </div>
+            <div class="typsh-commerce-cart__row">
+              <div class="typsh-commerce-qty">
+                <button type="button" class="typsh-commerce-pill" data-cart-qty-change data-line-key="{{ item.key }}" data-quantity="{{ item.quantity | minus: 1 }}" aria-label="Decrease quantity">-</button>
+                <span>{{ item.quantity }}</span>
+                <button type="button" class="typsh-commerce-pill" data-cart-qty-change data-line-key="{{ item.key }}" data-quantity="{{ item.quantity | plus: 1 }}" aria-label="Increase quantity">+</button>
+              </div>
+              <button type="button" class="typsh-commerce-link-button" data-cart-remove data-line-key="{{ item.key }}">Remove</button>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="typsh-commerce-cart__footer">
+      <div class="typsh-commerce-cart__subtotal">
+        <p class="typsh-commerce-copy">Estimated total</p>
+        <strong data-typsh-cart-subtotal>{{ cart.total_price | money }}</strong>
+      </div>
+      <p class="typsh-commerce-cart__summary">Free US shipping is built into pricing. Checkout stays dominant so momentum does not drop.</p>
+      <div class="typsh-commerce-actions">
+        <a class="typsh-commerce-button typsh-commerce-button--primary" href="/checkout">Checkout now</a>
+        <a class="typsh-commerce-link-button" href="{{ routes.cart_url }}">View full cart</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+{% schema %}
+{
+  "name": "typsh Home header",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show announcement bar",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "announcement_badge",
+      "label": "Announcement badge",
+      "default": "Launch"
+    },
+    {
+      "type": "text",
+      "id": "announcement_text",
+      "label": "Announcement text",
+      "default": "Free US shipping is built into every order. Browse the five-product launch lineup and use quick add for faster checkout."
+    },
+    {
+      "type": "url",
+      "id": "announcement_link",
+      "label": "Announcement link"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "Logo width",
+      "min": 140,
+      "max": 320,
+      "step": 10,
+      "unit": "px",
+      "default": 260
+    },
+    {
+      "type": "checkbox",
+      "id": "use_animated_logo",
+      "label": "Use animated logo",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "typsh Home header"
+    }
+  ]
+}
+{% endschema %}

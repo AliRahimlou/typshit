@@ -34,6 +34,11 @@ body.gradient .section-header {
   backdrop-filter: blur(18px);
 }
 
+body.gradient .shopify-section-group-header-group,
+body.gradient .shopify-section-group-footer-group {
+  display: none;
+}
+
 body.gradient .header,
 body.gradient .header__heading-link,
 body.gradient .header__icon,
