@@ -58,6 +58,13 @@ type ProductUpdateResponse = {
   };
 };
 
+type ProductSetResponse = {
+  productSet: {
+    product: ShopifyProductRecord | null;
+    userErrors: ShopifyUserError[];
+  };
+};
+
 const QUERIES = {
   productCreate: `#graphql
     mutation ProductCreate($product: ProductCreateInput!, $media: [CreateMediaInput!]) {
@@ -109,6 +116,28 @@ const QUERIES = {
         userErrors {
           field
           message
+        }
+      }
+    }
+  `,
+  productSet: `#graphql
+    mutation ProductSet(
+      $input: ProductSetInput!
+      $identifier: ProductSetIdentifiers
+      $synchronous: Boolean
+    ) {
+      productSet(input: $input, identifier: $identifier, synchronous: $synchronous) {
+        product {
+          id
+          title
+          handle
+          status
+          onlineStoreUrl
+        }
+        userErrors {
+          field
+          message
+          code
         }
       }
     }
@@ -709,6 +738,62 @@ async function addProductToCollectionByHandle(
   assertNoUserErrors("collectionAddProducts", nonDuplicateErrors);
 }
 
+function normalizeMediaUrls(mediaUrls: string[] | undefined): string[] {
+  if (!mediaUrls?.length) {
+    return [];
+  }
+
+  const uniqueMediaUrls = new Set<string>();
+
+  for (const mediaUrl of mediaUrls) {
+    const trimmedMediaUrl = mediaUrl.trim();
+    if (!trimmedMediaUrl) {
+      continue;
+    }
+
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(trimmedMediaUrl);
+    } catch {
+      continue;
+    }
+
+    if (!/^https?:$/i.test(parsedUrl.protocol)) {
+      continue;
+    }
+
+    uniqueMediaUrls.add(parsedUrl.toString());
+  }
+
+  return Array.from(uniqueMediaUrls);
+}
+
+function guessProductMediaExtension(mediaUrl: string): string {
+  try {
+    const pathname = new URL(mediaUrl).pathname.toLowerCase();
+    const extensionMatch = pathname.match(/\.(avif|gif|heic|jpe?g|png|svg|webp)$/i);
+    if (extensionMatch) {
+      return extensionMatch[0];
+    }
+  } catch {
+    return ".jpg";
+  }
+
+  return ".jpg";
+}
+
+function buildProductSetFiles(handle: string, mediaUrls: string[], alt: string) {
+  return mediaUrls.map((mediaUrl, index) => ({
+    alt,
+    contentType: "IMAGE",
+    duplicateResolutionMode: "REPLACE",
+    filename: `${handle}-${String(index + 1).padStart(2, "0")}${guessProductMediaExtension(
+      mediaUrl,
+    )}`,
+    originalSource: mediaUrl,
+  }));
+}
+
 export async function enrichPublishedProductByHandle(
   input: ShopifyEnrichProductInput,
 ): Promise<ShopifyEnrichProductResult> {
@@ -726,32 +811,61 @@ export async function enrichPublishedProductByHandle(
     input.seoTitle !== undefined ||
     input.seoDescription !== undefined;
 
-  const updatedProduct = shouldUpdateFields
-    ? await shopifyGraphQL<ProductUpdateResponse>(QUERIES.productUpdate, {
-        product: {
+  const mediaUrls = normalizeMediaUrls(input.mediaUrls);
+  const shouldSyncMedia = mediaUrls.length > 0;
+  const productInput = {
+    title: input.title,
+    descriptionHtml: input.descriptionHtml,
+    productType: input.productType,
+    tags: input.tags,
+    seo:
+      input.seoTitle || input.seoDescription
+        ? {
+            title: input.seoTitle,
+            description: input.seoDescription,
+          }
+        : undefined,
+  };
+
+  const updatedProduct = shouldSyncMedia
+    ? await shopifyGraphQL<ProductSetResponse>(QUERIES.productSet, {
+        synchronous: true,
+        identifier: {
           id: existingProduct.id,
-          title: input.title,
-          descriptionHtml: input.descriptionHtml,
-          productType: input.productType,
-          tags: input.tags,
-          seo:
-            input.seoTitle || input.seoDescription
-              ? {
-                  title: input.seoTitle,
-                  description: input.seoDescription,
-                }
-              : undefined,
+        },
+        input: {
+          ...productInput,
+          files: buildProductSetFiles(
+            existingProduct.handle,
+            mediaUrls,
+            input.mediaAlt ?? input.title ?? existingProduct.title,
+          ),
         },
       }).then((data) => {
-        assertNoUserErrors("productUpdate", data.productUpdate.userErrors);
+        assertNoUserErrors("productSet", data.productSet.userErrors);
 
-        if (!data.productUpdate.product) {
-          throw new Error("Product update returned null product");
+        if (!data.productSet.product) {
+          throw new Error("Product set returned null product");
         }
 
-        return data.productUpdate.product;
+        return data.productSet.product;
       })
-    : existingProduct;
+    : shouldUpdateFields
+      ? await shopifyGraphQL<ProductUpdateResponse>(QUERIES.productUpdate, {
+          product: {
+            id: existingProduct.id,
+            ...productInput,
+          },
+        }).then((data) => {
+          assertNoUserErrors("productUpdate", data.productUpdate.userErrors);
+
+          if (!data.productUpdate.product) {
+            throw new Error("Product update returned null product");
+          }
+
+          return data.productUpdate.product;
+        })
+      : existingProduct;
 
   const collectionHandles = input.collectionHandles ?? [];
   for (const collectionHandle of collectionHandles) {

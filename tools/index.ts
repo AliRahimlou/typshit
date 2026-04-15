@@ -36,6 +36,11 @@ import {
   zendropAddToImportListTool,
 } from "./zendropAddToImportList.js";
 import {
+  ZENDROP_LINK_EXISTING_PRODUCT_TOOL_NAME,
+  handleZendropLinkExistingProduct,
+  zendropLinkExistingProductTool,
+} from "./zendropLinkExistingProduct.js";
+import {
   ZENDROP_PUBLISH_TO_SHOPIFY_TOOL_NAME,
   handleZendropPublishToShopify,
   zendropPublishToShopifyTool,
@@ -54,6 +59,7 @@ export const toolDefinitions: OpenAI.Responses.FunctionTool[] = [
   retireProductTool,
   zendropSearchProductsTool,
   zendropAddToImportListTool,
+  zendropLinkExistingProductTool,
   zendropPublishToShopifyTool,
   shopifyEnrichPublishedProductTool,
 ];
@@ -74,6 +80,8 @@ export async function executeToolCall(toolName: string, input: unknown) {
       return handleZendropSearchProducts(input);
     case ZENDROP_ADD_TO_IMPORT_LIST_TOOL_NAME:
       return handleZendropAddToImportList(input);
+    case ZENDROP_LINK_EXISTING_PRODUCT_TOOL_NAME:
+      return handleZendropLinkExistingProduct(input);
     case ZENDROP_PUBLISH_TO_SHOPIFY_TOOL_NAME:
       return handleZendropPublishToShopify(input);
     case SHOPIFY_ENRICH_PUBLISHED_PRODUCT_TOOL_NAME:

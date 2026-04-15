@@ -36,6 +36,10 @@ curl http://localhost:8080/workflows/sourcing-plan
 curl http://localhost:8080/workflows/zendrop-status
 ```
 
+### Zendrop OAuth start
+
+Visit `http://127.0.0.1:8080/zendrop/oauth/start` in a browser to complete Zendrop approval.
+
 ### Zendrop catalog search
 
 ```bash
@@ -111,7 +115,7 @@ These cannot be fully completed from this backend alone without logging into thi
 - replace logo in the active theme
 - update homepage sections and navigation in the active theme
 - connect PayPal if not already finalized in admin
-- complete Zendrop OAuth and set `ZENDROP_ACCESS_TOKEN` for this backend
+- complete Zendrop OAuth through `http://127.0.0.1:8080/zendrop/oauth/start`
 
 ## Supplier Selection Rules
 

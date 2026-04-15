@@ -262,13 +262,21 @@ export type ZendropToolRecord = {
   inputSchema?: unknown;
 };
 
+export type ZendropOauthEvent = {
+  stage: "idle" | "started" | "callback-received" | "token-saved" | "error";
+  at: string;
+  message: string;
+};
+
 export type ZendropConnectionStatus = {
   configured: boolean;
   url: string;
   hasAccessToken: boolean;
+  hasClientId: boolean;
   tools: ZendropToolRecord[];
   initializeOk: boolean;
   listToolsOk: boolean;
+  oauth: ZendropOauthEvent;
   error?: string;
 };
 
@@ -287,6 +295,8 @@ export type ShopifyEnrichProductInput = {
   seoTitle?: string;
   seoDescription?: string;
   collectionHandles?: string[];
+  mediaUrls?: string[];
+  mediaAlt?: string;
   publish?: boolean;
 };
 

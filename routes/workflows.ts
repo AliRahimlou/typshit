@@ -17,8 +17,10 @@ import {
 import {
   getZendropConnectionStatus,
   zendropAddToImportList,
+  zendropLinkExistingProduct,
   zendropPublishToShopify,
   zendropSearchProducts,
+  zendropSyncLinkedProductAssets,
 } from "../zendrop.js";
 import type {
   LaunchReadinessCheck,
@@ -60,6 +62,25 @@ function resolveProductIdMap(body: {
 
     return accumulator;
   }, {});
+}
+
+function resolveStringList(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((entry): entry is string => typeof entry === "string")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+}
+
+function resolvePositiveInteger(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
+    return undefined;
+  }
+
+  return value;
 }
 
 async function runLaunchCatalogWorkflow(
@@ -388,6 +409,43 @@ workflowsRouter.post("/zendrop-add-to-import-list", async (request, response) =>
   }
 });
 
+workflowsRouter.post("/zendrop-link-existing-product", async (request, response) => {
+  try {
+    const body = request.body as {
+      storeProductId?: unknown;
+      productId?: unknown;
+      handle?: unknown;
+      title?: unknown;
+      confirmationToken?: unknown;
+      storeVariantId?: unknown;
+      catalogVariantId?: unknown;
+    };
+
+    const result = await zendropLinkExistingProduct({
+      storeProductId:
+        typeof body.storeProductId === "string" ? body.storeProductId : undefined,
+      productId: typeof body.productId === "string" ? body.productId : undefined,
+      handle: typeof body.handle === "string" ? body.handle : undefined,
+      title: typeof body.title === "string" ? body.title : undefined,
+      confirmationToken:
+        typeof body.confirmationToken === "string" ? body.confirmationToken : undefined,
+      storeVariantId:
+        typeof body.storeVariantId === "string" ? body.storeVariantId : undefined,
+      catalogVariantId:
+        typeof body.catalogVariantId === "string" ? body.catalogVariantId : undefined,
+    });
+
+    response.json({
+      workflow: "zendrop_link_existing_product",
+      ...result,
+    });
+  } catch (error) {
+    response.status(500).json({
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
 workflowsRouter.post("/zendrop-publish-to-shopify", async (request, response) => {
   try {
     const body = request.body as {
@@ -406,6 +464,80 @@ workflowsRouter.post("/zendrop-publish-to-shopify", async (request, response) =>
     response.json({
       workflow: "zendrop_publish_to_shopify",
       ...result,
+    });
+  } catch (error) {
+    response.status(500).json({
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+workflowsRouter.post("/zendrop-sync-linked-product-assets", async (request, response) => {
+  try {
+    const body = request.body as {
+      catalogKey?: unknown;
+      handle?: unknown;
+      handles?: unknown;
+      title?: unknown;
+      productId?: unknown;
+      importListItemId?: unknown;
+      publish?: unknown;
+      maxImages?: unknown;
+    };
+
+    const seed = resolveCatalogFromBody(body);
+    const requestedHandles = new Set<string>();
+
+    if (typeof body.handle === "string" && body.handle.trim().length > 0) {
+      requestedHandles.add(body.handle.trim());
+    }
+
+    for (const handle of resolveStringList(body.handles)) {
+      requestedHandles.add(handle);
+    }
+
+    const handles = requestedHandles.size
+      ? Array.from(requestedHandles)
+      : seed.products.map((product) => product.handle);
+    const publish = body.publish === true;
+    const maxImages = resolvePositiveInteger(body.maxImages);
+    const productId = typeof body.productId === "string" ? body.productId : undefined;
+    const importListItemId =
+      typeof body.importListItemId === "string" ? body.importListItemId : undefined;
+    const title = typeof body.title === "string" ? body.title : undefined;
+    const results = [];
+    const errors = [];
+
+    for (const handle of handles) {
+      const catalogProduct = seed.products.find((product) => product.handle === handle);
+
+      try {
+        results.push(
+          await zendropSyncLinkedProductAssets({
+            handle,
+            title: handles.length === 1 ? title ?? catalogProduct?.title : catalogProduct?.title,
+            publish,
+            maxImages,
+            productId: handles.length === 1 ? productId : undefined,
+            importListItemId: handles.length === 1 ? importListItemId : undefined,
+          }),
+        );
+      } catch (error) {
+        errors.push({
+          handle,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    response.status(errors.length ? (results.length ? 207 : 500) : 200).json({
+      workflow: "zendrop_sync_linked_product_assets",
+      catalogKey: seed.key,
+      handles,
+      publish,
+      maxImages: maxImages ?? null,
+      results,
+      errors,
     });
   } catch (error) {
     response.status(500).json({

@@ -42,12 +42,14 @@ SHOPIFY_API_VERSION=2026-04
 OPENAI_API_KEY=sk-xxx
 OPENAI_MODEL=gpt-5.4
 ZENDROP_MCP_URL=https://app.zendrop.com/mcp/v1
+ZENDROP_CLIENT_ID=
 ZENDROP_ACCESS_TOKEN=
+ZENDROP_REFRESH_TOKEN=
 ```
 
 For Dev Dashboard apps, this server can exchange `SHOPIFY_CLIENT_ID` and `SHOPIFY_CLIENT_SECRET` for a short-lived access token automatically. You won't see a permanent Admin token in the UI for that app model.
 
-For Zendrop MCP, complete OAuth in your MCP-capable agent client and set the resulting bearer token as `ZENDROP_ACCESS_TOKEN`. This backend uses the official Zendrop MCP URL and can then search products, add import candidates, and publish products to Shopify before enriching them.
+For Zendrop MCP, this backend now supports a local OAuth bootstrap flow. Open `/zendrop/oauth/start`, complete Zendrop sign-in/approval, and the backend will dynamically register a public client, exchange the code with PKCE, and persist `ZENDROP_CLIENT_ID`, `ZENDROP_ACCESS_TOKEN`, and `ZENDROP_REFRESH_TOKEN` into `.env`.
 
 ## Run
 
@@ -112,7 +114,11 @@ Returns the supplier-platform sourcing manifest, target margins, search terms, a
 
 ### `GET /workflows/zendrop-status`
 
-Checks whether Zendrop MCP is configured and lists the discovered MCP tools when the Zendrop access token is valid.
+Checks whether Zendrop MCP is configured and lists the discovered MCP tools when the Zendrop access token is valid. The response also includes the last OAuth stage seen by the backend so you can tell whether the flow only started, reached the callback, stored a token, or failed.
+
+### `GET /zendrop/oauth/start`
+
+Starts the Zendrop OAuth authorization code flow with PKCE using local callback handling on `http://127.0.0.1:8080/zendrop/oauth/callback`.
 
 ### `GET /workflows/launch-readiness`
 
@@ -202,9 +208,27 @@ Request:
 
 Adds a Zendrop product to the import list before Shopify publish.
 
+### `POST /workflows/zendrop-link-existing-product`
+
+Previews or confirms a Zendrop link for an existing Shopify product already in the store. Use this for typsh.it launch products that Zendrop reports as `unlinked` so fulfillment is connected without creating duplicate listings.
+
 ### `POST /workflows/zendrop-publish-to-shopify`
 
 Publishes a Zendrop-linked product to Shopify so fulfillment stays connected.
+
+### `POST /workflows/zendrop-sync-linked-product-assets`
+
+Fetches the linked Zendrop catalog images for one or more existing Shopify products and attaches them through Shopify `productSet` so the storefront stops rendering placeholder cards.
+
+Request:
+
+```json
+{
+  "catalogKey": "typsh-it-launch",
+  "publish": true,
+  "maxImages": 6
+}
+```
 
 ## First Launch Command
 

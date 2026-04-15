@@ -28,6 +28,8 @@ export const config = {
   openaiModel: process.env.OPENAI_MODEL ?? "gpt-5.4",
   zendropMcpUrl: process.env.ZENDROP_MCP_URL ?? "https://app.zendrop.com/mcp/v1",
   zendropAccessToken: process.env.ZENDROP_ACCESS_TOKEN,
+  zendropClientId: process.env.ZENDROP_CLIENT_ID,
+  zendropRefreshToken: process.env.ZENDROP_REFRESH_TOKEN,
 } as const;
 
 if (

@@ -9,7 +9,7 @@ export const shopifyEnrichPublishedProductTool: OpenAI.Responses.FunctionTool = 
   type: "function",
   name: SHOPIFY_ENRICH_PUBLISHED_PRODUCT_TOOL_NAME,
   description:
-    "Enhance a Zendrop-published Shopify product with SEO, copy, tags, and collection assignments after it has been linked from Zendrop.",
+    "Enhance a Zendrop-published Shopify product with SEO, copy, tags, collection assignments, and storefront media after it has been linked from Zendrop.",
   strict: true,
   parameters: {
     type: "object",
@@ -29,6 +29,11 @@ export const shopifyEnrichPublishedProductTool: OpenAI.Responses.FunctionTool = 
         type: "array",
         items: { type: "string" },
       },
+      mediaUrls: {
+        type: "array",
+        items: { type: "string" },
+      },
+      mediaAlt: { type: "string" },
       publish: { type: "boolean" },
     },
     required: ["handle"],
@@ -49,6 +54,10 @@ export async function handleShopifyEnrichPublishedProduct(input: unknown) {
     collectionHandles: Array.isArray(record.collectionHandles)
       ? readStringArray(record.collectionHandles, "collectionHandles")
       : undefined,
+    mediaUrls: Array.isArray(record.mediaUrls)
+      ? readStringArray(record.mediaUrls, "mediaUrls")
+      : undefined,
+    mediaAlt: readOptionalString(record.mediaAlt, "mediaAlt"),
     publish: record.publish === true,
   });
 }
