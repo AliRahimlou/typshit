@@ -1,5 +1,7 @@
 name: Deploy Shopify
 
+# Updating this workflow file itself is a valid way to force a deploy pipeline test.
+
 on:
   push:
     branches:
