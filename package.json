@@ -7,8 +7,10 @@
     "node": ">=18.18.0"
   },
   "scripts": {
-    "dev": "tsx watch server.ts",
-    "start": "tsx server.ts",
+    "dev": "bash ./scripts/run-agent-server.sh watch",
+    "site:dev": "bash ./scripts/dev-full-site.sh",
+    "start": "bash ./scripts/dev-full-site.sh",
+    "server:start": "bash ./scripts/run-agent-server.sh",
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "hooks:install": "bash ./scripts/install-git-hooks.sh",

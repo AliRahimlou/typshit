@@ -120,6 +120,10 @@ function createCollectionDescription(seed: LaunchCatalogSeed["collections"][numb
 }
 
 function createPageBody(seed: LaunchCatalogSeed["pages"][number]): string {
+  if (seed.bodyHtml?.trim()) {
+    return seed.bodyHtml;
+  }
+
   const pageBodies: Record<string, string> = {
     about: "<h1>About typsh.it</h1><p>typsh.it curates useful finds that actually make life easier. The store focuses on clean, problem-solving products for home, tech, and everyday convenience in the United States.</p><p>Every launch product is selected for practical value, clean presentation, and lower-friction day-to-day use.</p>",
     contact: "<h1>Contact</h1><p>Need help with an order or product question? Email support@typsh.it and include your order number when available.</p><p>Customer support is focused on clear, responsive help for US orders.</p>",
@@ -354,8 +358,23 @@ export async function generateLaunchCatalogAssets(
       Omit<LaunchCatalogAssets, "metaobjects">
     >("launch catalog assets", response.output_text);
 
+    const generatedPageByHandle = new Map(
+      generated.pages.map((page) => [page.handle, page]),
+    );
+
     return {
       ...generated,
+      pages: seed.pages.map((page) => {
+        const generatedPage = generatedPageByHandle.get(page.handle);
+
+        return {
+          title: page.title,
+          handle: page.handle,
+          bodyHtml: createPageBody(page),
+          seoTitle: generatedPage?.seoTitle ?? `${page.title} | ${seed.storeName}`,
+          seoDescription: generatedPage?.seoDescription ?? page.summary,
+        };
+      }),
       metaobjects: seed.metaobjects,
     };
   } catch {

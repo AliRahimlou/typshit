@@ -33,13 +33,15 @@ export type LaunchPageKind =
   | "contact"
   | "privacy"
   | "terms"
-  | "track-order";
+  | "track-order"
+  | "content";
 
 export type LaunchPageSeed = {
   title: string;
   handle: string;
   kind: LaunchPageKind;
   summary: string;
+  bodyHtml?: string;
 };
 
 export type LaunchBundleSeed = {
@@ -443,8 +445,30 @@ export type ZendropConnectionStatus = {
   tools: ZendropToolRecord[];
   initializeOk: boolean;
   listToolsOk: boolean;
+  challengeDetected?: boolean;
   oauth: ZendropOauthEvent;
   error?: string;
+};
+
+export type ZendropProductMediaCacheEntry = {
+  handle: string;
+  title?: string;
+  storeProductId?: string;
+  productId?: number;
+  importListItemId?: number;
+  productName?: string;
+  mediaAlt?: string;
+  descriptionHtml?: string;
+  seoDescription?: string;
+  productType?: string;
+  mediaUrls: string[];
+  updatedAt: string;
+};
+
+export type ZendropProductMediaCache = {
+  version: 1;
+  updatedAt: string;
+  entries: Record<string, ZendropProductMediaCacheEntry>;
 };
 
 export type ZendropSearchRequest = {
@@ -461,6 +485,8 @@ export type ShopifyEnrichProductInput = {
   tags?: string[];
   seoTitle?: string;
   seoDescription?: string;
+  price?: string;
+  compareAtPrice?: string;
   collectionHandles?: string[];
   mediaUrls?: string[];
   mediaAlt?: string;

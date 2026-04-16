@@ -44,7 +44,7 @@
 
   # Check if product has media
   assign product_has_media = true
-  if product_media_size == 0
+  if product_media_size == 0 and media_gallery == blank
     assign product_has_media = false
   endif
 

@@ -48,6 +48,10 @@ load_env() {
         continue
       fi
 
+      if [[ -n "${!key+x}" ]]; then
+        continue
+      fi
+
       if [[ "$value" =~ ^".*"$ || "$value" =~ ^'.*'$ ]]; then
         value="${value:1:-1}"
       fi
@@ -86,6 +90,46 @@ ensure_node18() {
 
 ensure_node20() {
   ensure_node_version 20
+}
+
+normalize_local_host() {
+  case "$1" in
+    ""|0.0.0.0|localhost|::|\[::\])
+      printf '127.0.0.1'
+      ;;
+    *)
+      printf '%s' "$1"
+      ;;
+  esac
+}
+
+port_is_open() {
+  local host port
+
+  host="$(normalize_local_host "$1")"
+  port="$2"
+
+  (exec 3<>"/dev/tcp/$host/$port") >/dev/null 2>&1
+}
+
+find_available_port() {
+  local host port max_attempts
+
+  host="$1"
+  port="$2"
+  max_attempts="${3:-25}"
+
+  for ((attempt = 0; attempt < max_attempts; attempt += 1)); do
+    if ! port_is_open "$host" "$port"; then
+      printf '%s' "$port"
+      return 0
+    fi
+
+    port="$((port + 1))"
+  done
+
+  echo "Could not find a free local port starting at $2." >&2
+  return 1
 }
 
 shopify_cli_bin() {
@@ -156,12 +200,24 @@ SERVER_PID=""
 SERVER_LOG=""
 
 start_agent_server_if_needed() {
-  local root base_url
+  local root base_url api_port requested_port
   root="$(repo_root)"
   base_url="$(agent_base_url)"
 
   if curl -fsS "$base_url/health" >/dev/null 2>&1; then
     return 0
+  fi
+
+  if [[ -z "${AGENT_BASE_URL:-}" ]]; then
+    requested_port="${PORT:-8080}"
+    api_port="$requested_port"
+
+    if port_is_open 127.0.0.1 "$api_port"; then
+      api_port="$(find_available_port 127.0.0.1 "$((requested_port + 1))")"
+      export PORT="$api_port"
+      export AGENT_BASE_URL="http://127.0.0.1:$api_port"
+      base_url="$AGENT_BASE_URL"
+    fi
   fi
 
   ensure_node18
@@ -170,7 +226,7 @@ start_agent_server_if_needed() {
 
   (
     cd "$root"
-    npm run start >"$SERVER_LOG" 2>&1 &
+    npm run server:start >"$SERVER_LOG" 2>&1 &
     echo $! > "$root/.typsh-agent-server.pid"
   )
 

@@ -37,6 +37,11 @@ import type {
 
 const LEGACY_PRODUCT_HANDLES = ["unisex-t-shirt", "unisex-t-shirt-1"];
 
+function isZendropTransportBlock(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes("Cloudflare challenge");
+}
+
 function resolveCatalogFromBody(body: {
   catalogKey?: unknown;
 }): LaunchCatalogSeed {
@@ -238,7 +243,7 @@ workflowsRouter.post("/create-theme-metaobject-definitions", async (_request, re
       ...result,
     });
   } catch (error) {
-    response.status(500).json({
+    response.status(isZendropTransportBlock(error) ? 503 : 500).json({
       error: error instanceof Error ? error.message : String(error),
     });
   }
@@ -250,7 +255,7 @@ workflowsRouter.get("/zendrop-status", async (_request, response) => {
       zendrop: await getZendropConnectionStatus(),
     });
   } catch (error) {
-    response.status(500).json({
+    response.status(isZendropTransportBlock(error) ? 503 : 500).json({
       error: error instanceof Error ? error.message : String(error),
     });
   }
@@ -283,7 +288,7 @@ workflowsRouter.post("/bootstrap-store", async (request, response) => {
       ...result,
     });
   } catch (error) {
-    response.status(500).json({
+    response.status(isZendropTransportBlock(error) ? 503 : 500).json({
       error: error instanceof Error ? error.message : String(error),
     });
   }
@@ -304,7 +309,7 @@ workflowsRouter.post("/create-launch-catalog", async (request, response) => {
       ...result,
     });
   } catch (error) {
-    response.status(500).json({
+    response.status(isZendropTransportBlock(error) ? 503 : 500).json({
       error: error instanceof Error ? error.message : String(error),
     });
   }
@@ -534,6 +539,102 @@ workflowsRouter.post("/zendrop-publish-to-shopify", async (request, response) =>
   }
 });
 
+workflowsRouter.post("/zendrop-link-catalog-products", async (request, response) => {
+  try {
+    const body = request.body as {
+      catalogKey?: unknown;
+      handle?: unknown;
+      handles?: unknown;
+      publish?: unknown;
+      syncAssets?: unknown;
+      maxImages?: unknown;
+    };
+
+    const seed = resolveCatalogFromBody(body);
+    const requestedHandles = new Set<string>();
+
+    if (typeof body.handle === "string" && body.handle.trim().length > 0) {
+      requestedHandles.add(body.handle.trim());
+    }
+
+    for (const handle of resolveStringList(body.handles)) {
+      requestedHandles.add(handle);
+    }
+
+    const handles = requestedHandles.size
+      ? Array.from(requestedHandles)
+      : seed.products.map((product) => product.handle);
+    const publish = body.publish === true;
+    const syncAssets = body.syncAssets !== false;
+    const maxImages = resolvePositiveInteger(body.maxImages);
+    const results = [];
+    const errors = [];
+    let blockedByZendropTransport = false;
+
+    for (const handle of handles) {
+      const catalogProduct = seed.products.find((product) => product.handle === handle);
+
+      if (!catalogProduct) {
+        errors.push({
+          handle,
+          error: `Handle ${handle} is not present in catalog ${seed.key}`,
+        });
+        continue;
+      }
+
+      try {
+        const linkResult = await zendropLinkExistingProduct({
+          handle,
+          title: catalogProduct.title,
+        });
+
+        const assetResult = syncAssets
+          ? await zendropSyncLinkedProductAssets({
+              handle,
+              title: catalogProduct.title,
+              publish,
+              maxImages,
+            })
+          : null;
+
+        results.push({
+          handle,
+          title: catalogProduct.title,
+          linkResult,
+          assetResult,
+        });
+      } catch (error) {
+        errors.push({
+          handle,
+          title: catalogProduct.title,
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        if (isZendropTransportBlock(error)) {
+          blockedByZendropTransport = true;
+          break;
+        }
+      }
+    }
+
+    response.status(blockedByZendropTransport ? 503 : errors.length ? (results.length ? 207 : 500) : 200).json({
+      workflow: "zendrop_link_catalog_products",
+      catalogKey: seed.key,
+      handles,
+      publish,
+      syncAssets,
+      maxImages: maxImages ?? null,
+      blockedByZendropTransport,
+      results,
+      errors,
+    });
+  } catch (error) {
+    response.status(isZendropTransportBlock(error) ? 503 : 500).json({
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
 workflowsRouter.post("/zendrop-sync-linked-product-assets", async (request, response) => {
   try {
     const body = request.body as {
@@ -569,6 +670,7 @@ workflowsRouter.post("/zendrop-sync-linked-product-assets", async (request, resp
     const title = typeof body.title === "string" ? body.title : undefined;
     const results = [];
     const errors = [];
+    let blockedByZendropTransport = false;
 
     for (const handle of handles) {
       const catalogProduct = seed.products.find((product) => product.handle === handle);
@@ -589,20 +691,26 @@ workflowsRouter.post("/zendrop-sync-linked-product-assets", async (request, resp
           handle,
           error: error instanceof Error ? error.message : String(error),
         });
+
+        if (isZendropTransportBlock(error)) {
+          blockedByZendropTransport = true;
+          break;
+        }
       }
     }
 
-    response.status(errors.length ? (results.length ? 207 : 500) : 200).json({
+    response.status(blockedByZendropTransport ? 503 : errors.length ? (results.length ? 207 : 500) : 200).json({
       workflow: "zendrop_sync_linked_product_assets",
       catalogKey: seed.key,
       handles,
       publish,
       maxImages: maxImages ?? null,
+      blockedByZendropTransport,
       results,
       errors,
     });
   } catch (error) {
-    response.status(500).json({
+    response.status(isZendropTransportBlock(error) ? 503 : 500).json({
       error: error instanceof Error ? error.message : String(error),
     });
   }

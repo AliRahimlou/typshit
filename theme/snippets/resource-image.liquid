@@ -50,8 +50,34 @@
   elsif content_type == 'collections'
     assign collection = closest.collection
     assign image_resource = collection.image
+
     if image_resource == blank
-      assign image_resource = collection.products.first.featured_image
+      assign preferred_collection_product_handle = blank
+
+      case collection.handle
+        when 'tech-accessories'
+          assign preferred_collection_product_handle = 'waterproof-58mp-outdoor-camera'
+        when 'beauty-skincare'
+          assign preferred_collection_product_handle = 'nine-color-eyeshadow-palette'
+        when 'pet-products'
+          assign preferred_collection_product_handle = 'smart-cat-ball-toy'
+        when 'fitness-wellness'
+          assign preferred_collection_product_handle = 'smart-fitness-tracker-bracelet'
+        when 'clothing-apparel'
+          assign preferred_collection_product_handle = 'wide-leg-slim-fit-ladies-jeans'
+      endcase
+
+      if preferred_collection_product_handle != blank
+        assign preferred_collection_product = collection.products | where: 'handle', preferred_collection_product_handle | first
+        if preferred_collection_product.featured_image != blank
+          assign image_resource = preferred_collection_product.featured_image
+        endif
+      endif
+    endif
+
+    if image_resource == blank
+      assign collection_product_with_image = collection.products | where: 'featured_image' | first
+      assign image_resource = collection_product_with_image.featured_image
     endif
   else
     assign image_resource = image_source
@@ -175,13 +201,17 @@
       {% render 'overlay', settings: block_settings %}
     {%- endif -%}
 
-    <div class="resource-image__image">
-      {% if content_type == 'articles' %}
-        {{ placeholder_name | placeholder_svg_tag: 'blog-placeholder-svg' }}
-      {% else %}
-        {{ placeholder_name | placeholder_svg_tag }}
-      {% endif %}
-    </div>
+    {% assign fallback_title = collection.title | default: 'typsh.it' %}
+    {% assign fallback_subtitle = 'Collection' %}
+    {% assign fallback_key = collection.handle | default: fallback_title %}
+
+    {% render 'typsh-fallback-media',
+      title: fallback_title,
+      subtitle: fallback_subtitle,
+      context_key: fallback_key,
+      class: 'resource-image__image',
+      aspect_ratio: ratio
+    %}
   </div>
 {% endif %}
 

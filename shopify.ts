@@ -60,6 +60,41 @@ type ProductUpdateResponse = {
   };
 };
 
+type ShopifyProductWithDefaultVariant = ShopifyProductRecord & {
+  variants: {
+    nodes: Array<{
+      id: string;
+      price: string;
+      compareAtPrice?: string | null;
+    }>;
+  };
+};
+
+type ShopifyProductMediaNode = {
+  mediaContentType?: string;
+  image?: {
+    url: string;
+    altText?: string | null;
+  } | null;
+};
+
+type ShopifyProductWithMedia = ShopifyProductRecord & {
+  media: {
+    nodes: ShopifyProductMediaNode[];
+  };
+};
+
+type ShopifyCollectionWithProductMembership = ShopifyCollectionRecord & {
+  availablePublicationsCount?: {
+    count: number;
+  };
+  products?: {
+    nodes: Array<{
+      id: string;
+    }>;
+  };
+};
+
 type ProductSetResponse = {
   productSet: {
     product: ShopifyProductRecord | null;
@@ -253,6 +288,37 @@ const QUERIES = {
           handle
           status
           onlineStoreUrl
+          variants(first: 1) {
+            nodes {
+              id
+              price
+              compareAtPrice
+            }
+          }
+        }
+      }
+    }
+  `,
+  productMediaByHandle: `#graphql
+    query ProductMediaByHandle($query: String!) {
+      products(first: 1, query: $query) {
+        nodes {
+          id
+          title
+          handle
+          status
+          onlineStoreUrl
+          media(first: 20) {
+            nodes {
+              mediaContentType
+              ... on MediaImage {
+                image {
+                  url
+                  altText
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -266,6 +332,11 @@ const QUERIES = {
           handle
           availablePublicationsCount {
             count
+          }
+          products(first: 250) {
+            nodes {
+              id
+            }
           }
         }
       }
@@ -500,7 +571,21 @@ async function findExistingProductByHandle(
 ): Promise<ShopifyProductRecord | null> {
   const data = await shopifyGraphQL<{
     products: {
-      nodes: ShopifyProductRecord[];
+      nodes: ShopifyProductWithDefaultVariant[];
+    };
+  }>(QUERIES.productByHandle, {
+    query: `handle:${handle}`,
+  });
+
+  return data.products.nodes[0] ?? null;
+}
+
+async function findExistingProductWithDefaultVariantByHandle(
+  handle: string,
+): Promise<ShopifyProductWithDefaultVariant | null> {
+  const data = await shopifyGraphQL<{
+    products: {
+      nodes: ShopifyProductWithDefaultVariant[];
     };
   }>(QUERIES.productByHandle, {
     query: `handle:${handle}`,
@@ -511,16 +596,10 @@ async function findExistingProductByHandle(
 
 async function findExistingCollectionByHandle(
   handle: string,
-): Promise<(ShopifyCollectionRecord & { availablePublicationsCount?: { count: number } }) | null> {
+): Promise<ShopifyCollectionWithProductMembership | null> {
   const data = await shopifyGraphQL<{
     collections: {
-      nodes: Array<
-        ShopifyCollectionRecord & {
-          availablePublicationsCount?: {
-            count: number;
-          };
-        }
-      >;
+      nodes: ShopifyCollectionWithProductMembership[];
     };
   }>(QUERIES.collectionByHandle, {
     query: `handle:${handle}`,
@@ -684,6 +763,9 @@ export async function createProduct(
           tags: product.tags,
           seoTitle: product.seoTitle,
           seoDescription: product.seoDescription,
+          price: product.price,
+          compareAtPrice: product.compareAtPrice,
+          collectionHandles: product.collections,
           publish: options?.publish ?? product.status === "ACTIVE",
         })
       ).product;
@@ -889,6 +971,10 @@ async function addProductToCollectionByHandle(
     throw new Error(`Collection not found for handle: ${collectionHandle}`);
   }
 
+  if (collection.products?.nodes.some((product) => product.id === productId)) {
+    return;
+  }
+
   await addProductsToCollection(collection.id, [productId]);
 }
 
@@ -972,6 +1058,44 @@ function buildProductSetFiles(handle: string, mediaUrls: string[], alt: string) 
   }));
 }
 
+export async function getProductMediaUrlsByHandle(handle: string, limit = 10) {
+  const data = await shopifyGraphQL<{
+    products: {
+      nodes: ShopifyProductWithMedia[];
+    };
+  }>(QUERIES.productMediaByHandle, {
+    query: `handle:${handle}`,
+  });
+
+  const product = data.products.nodes[0] ?? null;
+
+  if (!product) {
+    return {
+      product: null,
+      mediaUrls: [],
+      mediaAlt: undefined,
+    };
+  }
+
+  const mediaUrls = normalizeMediaUrls(
+    product.media.nodes.flatMap((node) => {
+      const mediaUrl = node.image?.url?.trim();
+      return mediaUrl ? [mediaUrl] : [];
+    }),
+  ).slice(0, limit);
+
+  const mediaAlt =
+    product.media.nodes.find(
+      (node) => typeof node.image?.altText === "string" && node.image.altText.trim().length > 0,
+    )?.image?.altText?.trim() ?? product.title;
+
+  return {
+    product,
+    mediaUrls,
+    mediaAlt,
+  };
+}
+
 export async function enrichPublishedProductByHandle(
   input: ShopifyEnrichProductInput,
 ): Promise<ShopifyEnrichProductResult> {
@@ -991,6 +1115,7 @@ export async function enrichPublishedProductByHandle(
 
   const mediaUrls = normalizeMediaUrls(input.mediaUrls);
   const shouldSyncMedia = mediaUrls.length > 0;
+  const shouldUpdatePricing = input.price !== undefined || input.compareAtPrice !== undefined;
   const productInput = {
     title: input.title,
     descriptionHtml: input.descriptionHtml,
@@ -1044,6 +1169,24 @@ export async function enrichPublishedProductByHandle(
           return data.productUpdate.product;
         })
       : existingProduct;
+
+    if (shouldUpdatePricing) {
+      const productWithDefaultVariant = await findExistingProductWithDefaultVariantByHandle(
+        input.handle,
+      );
+      const defaultVariant = productWithDefaultVariant?.variants.nodes[0];
+
+      if (!defaultVariant) {
+        throw new Error(`Product ${input.handle} did not return a default variant`);
+      }
+
+      await updateDefaultVariantPricing(
+        updatedProduct.id,
+        defaultVariant.id,
+        input.price ?? defaultVariant.price,
+        input.compareAtPrice ?? defaultVariant.compareAtPrice ?? undefined,
+      );
+    }
 
   const collectionHandles = input.collectionHandles ?? [];
   for (const collectionHandle of collectionHandles) {

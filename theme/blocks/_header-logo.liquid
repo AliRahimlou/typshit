@@ -5,6 +5,8 @@
   assign use_inverse_logo = false
   assign fallback_logo_asset = 'typsh-horizon-header-logo.svg'
   assign fallback_logo_aspect_ratio = 3.805
+  assign fallback_logo_height = settings.logo_height | times: 1.4 | round
+  assign fallback_logo_height_mobile = settings.logo_height_mobile | times: 1.4 | round
 
   if section.settings.enable_transparent_header_home and template.name == 'index' and section.settings.home_color_scheme == 'inverse'
     assign use_inverse_logo = true
@@ -48,23 +50,31 @@
     if settings.logo != blank
       assign logo_width = settings.logo_height | times: settings.logo.aspect_ratio | ceil
       assign logo_width_mobile = settings.logo_height_mobile | times: settings.logo.aspect_ratio | ceil
+      assign logo_height = settings.logo_height
+      assign logo_height_mobile = settings.logo_height_mobile
     else
-      assign logo_width = settings.logo_height | times: fallback_logo_aspect_ratio | ceil
-      assign logo_width_mobile = settings.logo_height_mobile | times: fallback_logo_aspect_ratio | ceil
+      assign logo_width = fallback_logo_height | times: fallback_logo_aspect_ratio | ceil
+      assign logo_width_mobile = fallback_logo_height_mobile | times: fallback_logo_aspect_ratio | ceil
+      assign logo_height = fallback_logo_height
+      assign logo_height_mobile = fallback_logo_height_mobile
     endif
 
     if use_inverse_logo
       if inverse_logo != blank
         assign inverse_logo_width = settings.logo_height | times: inverse_logo.aspect_ratio | ceil
         assign inverse_logo_width_mobile = settings.logo_height_mobile | times: inverse_logo.aspect_ratio | ceil
+        assign inverse_logo_height = settings.logo_height
+        assign inverse_logo_height_mobile = settings.logo_height_mobile
       else
-        assign inverse_logo_width = settings.logo_height | times: fallback_logo_aspect_ratio | ceil
-        assign inverse_logo_width_mobile = settings.logo_height_mobile | times: fallback_logo_aspect_ratio | ceil
+        assign inverse_logo_width = fallback_logo_height | times: fallback_logo_aspect_ratio | ceil
+        assign inverse_logo_width_mobile = fallback_logo_height_mobile | times: fallback_logo_aspect_ratio | ceil
+        assign inverse_logo_height = fallback_logo_height
+        assign inverse_logo_height_mobile = fallback_logo_height_mobile
       endif
     endif
 
-    assign logo_style = '--header-logo-image-width: ' | append: logo_width | append: 'px;' | append: '--header-logo-image-width-mobile: ' | append: logo_width_mobile | append: 'px; --header-logo-image-height: ' | append: settings.logo_height | append: 'px; --header-logo-image-height-mobile: ' | append: settings.logo_height_mobile | append: 'px;'
-    assign inverse_logo_style = '--header-logo-image-width: ' | append: inverse_logo_width | append: 'px;' | append: '--header-logo-image-width-mobile: ' | append: inverse_logo_width_mobile | append: 'px; --header-logo-image-height: ' | append: settings.logo_height | append: 'px; --header-logo-image-height-mobile: ' | append: settings.logo_height_mobile | append: 'px;'
+    assign logo_style = '--header-logo-image-width: ' | append: logo_width | append: 'px;' | append: '--header-logo-image-width-mobile: ' | append: logo_width_mobile | append: 'px; --header-logo-image-height: ' | append: logo_height | append: 'px; --header-logo-image-height-mobile: ' | append: logo_height_mobile | append: 'px;'
+    assign inverse_logo_style = '--header-logo-image-width: ' | append: inverse_logo_width | append: 'px;' | append: '--header-logo-image-width-mobile: ' | append: inverse_logo_width_mobile | append: 'px; --header-logo-image-height: ' | append: inverse_logo_height | append: 'px; --header-logo-image-height-mobile: ' | append: inverse_logo_height_mobile | append: 'px;'
   %}
 
   <span

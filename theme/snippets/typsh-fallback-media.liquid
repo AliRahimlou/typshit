@@ -1,0 +1,167 @@
+{%- doc -%}
+  Branded fallback media tile for products and collections that do not yet have synced imagery.
+
+  @param {string} title - Primary title to display
+  @param {string} [subtitle] - Secondary label to display
+  @param {string} [context_key] - Key used to determine fallback palette
+  @param {string} [class] - Extra classes for the root element
+  @param {string} [aspect_ratio] - CSS aspect-ratio value
+{%- enddoc -%}
+
+{% liquid
+  assign fallback_title = title | default: 'typsh.it'
+  assign fallback_subtitle = subtitle | default: 'Curated essentials'
+  assign fallback_key = context_key | default: fallback_title | downcase
+  assign fallback_class = class | default: ''
+  assign fallback_ratio = aspect_ratio | default: '1 / 1'
+
+  assign fallback_background = 'linear-gradient(135deg, #111827 0%, #334155 52%, #d4d4d8 100%)'
+  assign fallback_panel = 'rgba(255, 255, 255, 0.10)'
+  assign fallback_border = 'rgba(255, 255, 255, 0.22)'
+  assign fallback_accent = '#f8fafc'
+  assign fallback_text = '#f8fafc'
+  assign fallback_muted = 'rgba(248, 250, 252, 0.78)'
+
+  if fallback_key contains 'tech' or fallback_key contains 'keyboard' or fallback_key contains 'audio' or fallback_key contains 'camera'
+    assign fallback_background = 'linear-gradient(135deg, #081f2c 0%, #0f766e 48%, #7dd3fc 100%)'
+    assign fallback_panel = 'rgba(8, 31, 44, 0.30)'
+    assign fallback_border = 'rgba(125, 211, 252, 0.32)'
+    assign fallback_accent = '#67e8f9'
+  elsif fallback_key contains 'kitchen' or fallback_key contains 'cook' or fallback_key contains 'home' or fallback_key contains 'pan' or fallback_key contains 'pot'
+    assign fallback_background = 'linear-gradient(135deg, #2b1608 0%, #b45309 48%, #fde68a 100%)'
+    assign fallback_panel = 'rgba(43, 22, 8, 0.24)'
+    assign fallback_border = 'rgba(253, 230, 138, 0.30)'
+    assign fallback_accent = '#fde68a'
+  elsif fallback_key contains 'beauty' or fallback_key contains 'skin' or fallback_key contains 'makeup' or fallback_key contains 'hair'
+    assign fallback_background = 'linear-gradient(135deg, #3b1028 0%, #be185d 48%, #fbcfe8 100%)'
+    assign fallback_panel = 'rgba(59, 16, 40, 0.22)'
+    assign fallback_border = 'rgba(251, 207, 232, 0.32)'
+    assign fallback_accent = '#f9a8d4'
+  elsif fallback_key contains 'pet' or fallback_key contains 'cat' or fallback_key contains 'dog'
+    assign fallback_background = 'linear-gradient(135deg, #1f3a22 0%, #4d7c0f 48%, #fef08a 100%)'
+    assign fallback_panel = 'rgba(31, 58, 34, 0.24)'
+    assign fallback_border = 'rgba(254, 240, 138, 0.34)'
+    assign fallback_accent = '#fef08a'
+  elsif fallback_key contains 'fitness' or fallback_key contains 'wellness' or fallback_key contains 'exercise' or fallback_key contains 'tracker'
+    assign fallback_background = 'linear-gradient(135deg, #0b1b3a 0%, #2563eb 48%, #86efac 100%)'
+    assign fallback_panel = 'rgba(11, 27, 58, 0.24)'
+    assign fallback_border = 'rgba(134, 239, 172, 0.32)'
+    assign fallback_accent = '#86efac'
+  elsif fallback_key contains 'clothing' or fallback_key contains 'apparel' or fallback_key contains 'dress' or fallback_key contains 'jean' or fallback_key contains 'hoodie' or fallback_key contains 'blazer'
+    assign fallback_background = 'linear-gradient(135deg, #1f2937 0%, #6b7280 48%, #f5d0a9 100%)'
+    assign fallback_panel = 'rgba(31, 41, 55, 0.22)'
+    assign fallback_border = 'rgba(245, 208, 169, 0.30)'
+    assign fallback_accent = '#f5d0a9'
+  endif
+%}
+
+<div
+  class="typsh-fallback-media {{ fallback_class }}"
+  style="
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: {{ fallback_ratio }};
+    overflow: hidden;
+    background: {{ fallback_background }};
+    color: {{ fallback_text }};
+  "
+>
+  <div
+    aria-hidden="true"
+    style="
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.22), transparent 34%),
+        linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.42) 100%);
+    "
+  ></div>
+  <div
+    aria-hidden="true"
+    style="
+      position: absolute;
+      inset: 14px;
+      border: 1px solid {{ fallback_border }};
+      border-radius: 18px;
+      background: linear-gradient(180deg, {{ fallback_panel }} 0%, rgba(15, 23, 42, 0.05) 100%);
+    "
+  ></div>
+  <div
+    aria-hidden="true"
+    style="
+      position: absolute;
+      right: -8%;
+      top: 12%;
+      width: 54%;
+      height: 54%;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.04));
+      transform: rotate(-14deg);
+    "
+  ></div>
+  <div
+    aria-hidden="true"
+    style="
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 24%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, {{ fallback_border }} 18%, {{ fallback_border }} 82%, transparent 100%);
+    "
+  ></div>
+  <div
+    style="
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 18px;
+      width: 100%;
+    "
+  >
+    <span
+      style="
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.22);
+        border: 1px solid {{ fallback_border }};
+        color: {{ fallback_accent }};
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      "
+    >
+      {{ fallback_subtitle }}
+    </span>
+    <span
+      style="
+        max-width: 14ch;
+        font-size: clamp(20px, 4vw, 34px);
+        line-height: 1.04;
+        font-weight: 700;
+        text-wrap: balance;
+      "
+    >
+      {{ fallback_title }}
+    </span>
+    <span
+      style="
+        max-width: 18ch;
+        color: {{ fallback_muted }};
+        font-size: 13px;
+        line-height: 1.35;
+      "
+    >
+      Curated for the current TYPSH.IT assortment.
+    </span>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+
+> typsh-it-shopify-agent-server@0.1.0 start
+> tsx server.ts
+
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+typsh.it Shopify agent server listening on :8080

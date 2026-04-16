@@ -106,7 +106,7 @@
   assign sizes_mobile = media_width_mobile
   assign mobile_widths = '416, 600, 800, 1200, 1600'
   assign mobile_widths_array = mobile_widths | split: ', '
-  assign fallback_media_asset = 'typsh-horizon-browse-latest-products.jpg'
+  assign fallback_media_asset = 'typsh-horizon-browse-latest-products.png'
 
   assign resolved_media_count = media_count
   if resolved_media_count == 0
@@ -130,8 +130,8 @@
     src="{{ fallback_media_asset | asset_url }}"
     alt="Browse our latest products at typsh.it"
     class="hero__media"
-    width="2560"
-    height="1718"
+    width="1536"
+    height="1024"
     loading="eager"
     fetchpriority="{{ fetch_priority }}"
   >
@@ -142,8 +142,8 @@
     src="{{ fallback_media_asset | asset_url }}"
     alt=""
     class="hero__media"
-    width="2560"
-    height="1718"
+    width="1536"
+    height="1024"
     loading="eager"
     fetchpriority="{{ fetch_priority }}"
   >

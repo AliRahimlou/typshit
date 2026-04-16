@@ -27,9 +27,22 @@ export const config = {
   openaiApiKey: readRequiredEnv("OPENAI_API_KEY"),
   openaiModel: process.env.OPENAI_MODEL ?? "gpt-5.4",
   zendropMcpUrl: process.env.ZENDROP_MCP_URL ?? "https://app.zendrop.com/mcp/v1",
+  zendropOauthAuthorizationUrl:
+    process.env.ZENDROP_OAUTH_AUTHORIZATION_URL ??
+    "https://app.zendrop.com/mcp/oauth/authorize",
+  zendropOauthTokenUrl:
+    process.env.ZENDROP_OAUTH_TOKEN_URL ?? "https://app.zendrop.com/mcp/oauth/token",
+  zendropOauthRegistrationUrl:
+    process.env.ZENDROP_OAUTH_REGISTRATION_URL ??
+    "https://app.zendrop.com/mcp/oauth/register",
   zendropAccessToken: process.env.ZENDROP_ACCESS_TOKEN,
   zendropClientId: process.env.ZENDROP_CLIENT_ID,
   zendropRefreshToken: process.env.ZENDROP_REFRESH_TOKEN,
+  zendropCookie: process.env.ZENDROP_COOKIE,
+  zendropCfClearance: process.env.ZENDROP_CF_CLEARANCE,
+  zendropUserAgent:
+    process.env.ZENDROP_USER_AGENT ??
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
 } as const;
 
 if (

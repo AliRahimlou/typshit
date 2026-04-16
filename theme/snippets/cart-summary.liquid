@@ -258,6 +258,13 @@
 </div>
 
 <div class="cart__ctas">
+  {% liquid
+    assign is_local_theme_preview = false
+    if request.visual_preview_mode or request.host contains '127.0.0.1' or request.host contains 'localhost'
+      assign is_local_theme_preview = true
+    endif
+  %}
+
   <button
     type="submit"
     id="checkout"
@@ -273,7 +280,7 @@
     </span>
   </button>
 
-  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons %}
+  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons and is_local_theme_preview == false %}
     <div
       class="
         additional-checkout-buttons

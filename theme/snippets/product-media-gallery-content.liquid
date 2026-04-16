@@ -322,7 +322,7 @@
   :root { --gallery-media-border-radius: {{ block_settings.media_radius }}px; }
 {% endstyle %}
 
-{% if closest.product == blank %}
+{% if closest.product == blank or sorted_media.size == 0 %}
   <div
     class="
       {% if block_settings.extend_media %}
@@ -331,7 +331,14 @@
     "
     {{ block_shopify_attributes }}
   >
-    {{ 'product-apparel-1' | placeholder_svg_tag: 'product-media-gallery__placeholder-image' }}
+    {% assign fallback_product = closest.product %}
+    {% render 'typsh-fallback-media',
+      title: fallback_product.title | default: 'TYPSH.IT',
+      subtitle: fallback_product.type | default: 'Curated product',
+      context_key: fallback_product.type | default: fallback_product.title,
+      class: 'product-media-gallery__placeholder-image',
+      aspect_ratio: '4 / 5'
+    %}
   </div>
 {% else %}
   <media-gallery

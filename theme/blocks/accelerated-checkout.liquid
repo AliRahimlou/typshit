@@ -13,13 +13,19 @@
 
 {% liquid
   assign product = closest.product
+  assign is_local_theme_preview = false
+
+  if request.visual_preview_mode or request.host contains '127.0.0.1' or request.host contains 'localhost'
+    assign is_local_theme_preview = true
+  endif
+
   if request.visual_preview_mode and product == blank
     assign product = collections.all.products.first
   endif
 %}
 
 {% capture accelerated_checkout_button %}
-  {% if product != blank and form_obj != blank %}
+  {% if product != blank and form_obj != blank and is_local_theme_preview == false %}
     {{ form_obj | payment_button }}
   {% endif %}
 {% endcapture %}

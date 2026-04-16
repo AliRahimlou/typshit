@@ -12,6 +12,12 @@
         type="image/png"
         href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
       >
+    {%- else -%}
+      <link
+        rel="icon"
+        type="image/svg+xml"
+        href="{{ 'typsh-horizon-header-logo.svg' | asset_url }}"
+      >
     {%- endif -%}
 
     {% # theme-check-disable RemoteAsset %}
@@ -35,6 +41,245 @@
     {% if request.design_mode %}
       {%- render 'theme-editor' -%}
     {% endif %}
+
+    <script>
+      (function () {
+        const isLocalThemePreview =
+          window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+
+        if (!isLocalThemePreview) {
+          return;
+        }
+
+        const blockedCustomElements = new Set([
+          'shopify-account',
+          'shopify-store',
+          'shopify-accelerated-checkout',
+          'shopify-accelerated-checkout-cart',
+        ]);
+        const blockedUrlFragments = [
+          'shop.app',
+          '/accounts/pre_auth',
+          '/pay/hop',
+          '/checkouts/internal/preloads.js',
+          'shopify.dynamic_checkout',
+        ];
+        const localOnlySelectors = [
+          '.account-button',
+          'shopify-store',
+          'shopify-account',
+          '.accelerated-checkout-block',
+          '.additional-checkout-buttons',
+          'shopify-accelerated-checkout',
+          'shopify-accelerated-checkout-cart',
+          'meta#shopify-digital-wallet',
+          'meta[name="shopify-checkout-api-token"]',
+          'meta#in-context-paypal-metadata',
+          'script[src*="/checkouts/internal/preloads.js"]',
+          'script[src*="shop.app/checkouts/internal/preloads.js"]',
+          'script[data-source-attribution*="shopify.dynamic_checkout"]',
+          'link#shopify-accelerated-checkout-styles',
+          'style#shopify-accelerated-checkout-cart',
+          'iframe[src*="shop.app"]',
+          'iframe[src*="/accounts/pre_auth"]',
+          'iframe[src*="/pay/hop"]',
+        ];
+
+        const shouldBlockUrl = (value) =>
+          typeof value === 'string' && blockedUrlFragments.some((fragment) => value.includes(fragment));
+
+        const removeLocalOnlyEmbeds = () => {
+          document.querySelectorAll(localOnlySelectors.join(',')).forEach((node) => {
+            const container = node.closest(
+              '.account-button, .accelerated-checkout-block, .additional-checkout-buttons'
+            );
+
+            (container || node).remove();
+          });
+        };
+
+        const style = document.createElement('style');
+        style.textContent = [
+          '.account-button,',
+          '.accelerated-checkout-block,',
+          '.additional-checkout-buttons,',
+          'shopify-store,',
+          'shopify-account,',
+          'shopify-accelerated-checkout,',
+          'shopify-accelerated-checkout-cart { display: none !important; }',
+        ].join(' ');
+        document.head.appendChild(style);
+
+        const installBlockedSrcProperty = (ctor) => {
+          const descriptor = Object.getOwnPropertyDescriptor(ctor.prototype, 'src');
+
+          if (!descriptor || !descriptor.configurable || !descriptor.set || !descriptor.get) {
+            return;
+          }
+
+          Object.defineProperty(ctor.prototype, 'src', {
+            configurable: true,
+            enumerable: descriptor.enumerable,
+            get: descriptor.get,
+            set(value) {
+              if (shouldBlockUrl(value)) {
+                return value;
+              }
+
+              return descriptor.set.call(this, value);
+            },
+          });
+        };
+
+        installBlockedSrcProperty(HTMLIFrameElement);
+        installBlockedSrcProperty(HTMLScriptElement);
+
+        const originalDefine = window.customElements.define.bind(window.customElements);
+        window.customElements.define = function (name, constructor, options) {
+          if (blockedCustomElements.has(name)) {
+            return;
+          }
+
+          return originalDefine(name, constructor, options);
+        };
+
+        let shopifyState = window.Shopify || {};
+        const normalizeShopify = (value) => {
+          const shopify = value || {};
+
+          if (!shopify.PaymentButton) {
+            shopify.PaymentButton = {};
+          }
+
+          shopify.PaymentButton.init = removeLocalOnlyEmbeds;
+          return shopify;
+        };
+
+        shopifyState = normalizeShopify(shopifyState);
+
+        Object.defineProperty(window, 'Shopify', {
+          configurable: true,
+          get() {
+            return shopifyState;
+          },
+          set(value) {
+            shopifyState = normalizeShopify(value);
+          },
+        });
+
+        const originalAppendChild = Node.prototype.appendChild;
+        Node.prototype.appendChild = function (node) {
+          if (
+            (node instanceof HTMLIFrameElement || node instanceof HTMLScriptElement) &&
+            shouldBlockUrl(node.src)
+          ) {
+            return node;
+          }
+
+          return originalAppendChild.call(this, node);
+        };
+
+        const originalInsertBefore = Node.prototype.insertBefore;
+        Node.prototype.insertBefore = function (node, child) {
+          if (
+            (node instanceof HTMLIFrameElement || node instanceof HTMLScriptElement) &&
+            shouldBlockUrl(node.src)
+          ) {
+            return node;
+          }
+
+          return originalInsertBefore.call(this, node, child);
+        };
+
+        const originalReplaceChild = Node.prototype.replaceChild;
+        Node.prototype.replaceChild = function (node, child) {
+          if (
+            (node instanceof HTMLIFrameElement || node instanceof HTMLScriptElement) &&
+            shouldBlockUrl(node.src)
+          ) {
+            return child;
+          }
+
+          return originalReplaceChild.call(this, node, child);
+        };
+
+        const originalAppend = Element.prototype.append;
+        Element.prototype.append = function (...nodes) {
+          const allowedNodes = nodes.filter(
+            (node) =>
+              !((node instanceof HTMLIFrameElement || node instanceof HTMLScriptElement) && shouldBlockUrl(node.src))
+          );
+
+          if (allowedNodes.length === 0) {
+            return;
+          }
+
+          return originalAppend.apply(this, allowedNodes);
+        };
+
+        const originalPrepend = Element.prototype.prepend;
+        Element.prototype.prepend = function (...nodes) {
+          const allowedNodes = nodes.filter(
+            (node) =>
+              !((node instanceof HTMLIFrameElement || node instanceof HTMLScriptElement) && shouldBlockUrl(node.src))
+          );
+
+          if (allowedNodes.length === 0) {
+            return;
+          }
+
+          return originalPrepend.apply(this, allowedNodes);
+        };
+
+        const originalSetAttribute = Element.prototype.setAttribute;
+        Element.prototype.setAttribute = function (name, value) {
+          if (
+            (this instanceof HTMLIFrameElement || this instanceof HTMLScriptElement) &&
+            name === 'src' &&
+            shouldBlockUrl(value)
+          ) {
+            return;
+          }
+
+          return originalSetAttribute.call(this, name, value);
+        };
+
+        const originalFetch = window.fetch?.bind(window);
+        if (originalFetch) {
+          window.fetch = function (input, init) {
+            const url = typeof input === 'string' ? input : input?.url;
+
+            if (shouldBlockUrl(url)) {
+              return Promise.resolve(new Response('', { status: 204, statusText: 'No Content' }));
+            }
+
+            return originalFetch(input, init);
+          };
+        }
+
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+          this.__typshBlockedRequest = shouldBlockUrl(url);
+          return originalXHROpen.call(this, method, url, ...rest);
+        };
+
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+        XMLHttpRequest.prototype.send = function (...args) {
+          if (this.__typshBlockedRequest) {
+            this.abort();
+            return;
+          }
+
+          return originalXHRSend.apply(this, args);
+        };
+
+        const observer = new MutationObserver(removeLocalOnlyEmbeds);
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+
+        removeLocalOnlyEmbeds();
+        window.__TYPSH_LOCAL_THEME_PREVIEW__ = true;
+      })();
+    </script>
 
     {{ content_for_header }}
     {% # theme-check-enable RemoteAsset %}

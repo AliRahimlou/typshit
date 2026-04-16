@@ -1,5 +1,10 @@
 import type { LaunchCatalogSeed } from "../types.js";
 
+import {
+  ZENDROP_TRENDING_APR_2026_CATALOG_KEY,
+  zendropTrendingApr2026Catalog,
+} from "./zendropTrendingApr2026Catalog.js";
+
 export const DEFAULT_CATALOG_KEY = "typsh-it-launch";
 
 export const launchCatalogs: Record<string, LaunchCatalogSeed> = {
@@ -450,6 +455,7 @@ export const launchCatalogs: Record<string, LaunchCatalogSeed> = {
       },
     ],
   },
+  [ZENDROP_TRENDING_APR_2026_CATALOG_KEY]: zendropTrendingApr2026Catalog,
 };
 
 export function getLaunchCatalog(key: string | undefined): LaunchCatalogSeed {

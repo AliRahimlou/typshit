@@ -173,16 +173,20 @@
       %}
     </a>
   {% elsif product != blank and product.media.size == 0 %}
-    <product-title class="product-card-gallery__title-placeholder">
-      <a
-        class="contents"
-        ref="productTitleLink"
-        href="{{ product.selected_or_first_available_variant.url }}"
-        aria-hidden="true"
-      >
-        <span class="title-text">{{- product.title -}}</span>
-      </a>
-    </product-title>
+    <a
+      class="contents"
+      ref="productTitleLink"
+      href="{{ product.selected_or_first_available_variant.url }}"
+      aria-label="{{- product.title -}}"
+    >
+      {% render 'typsh-fallback-media',
+        title: product.title,
+        subtitle: product.type | default: 'Curated product',
+        context_key: product.type | default: product.title,
+        class: 'card-gallery__media-fallback',
+        aspect_ratio: ratio
+      %}
+    </a>
   {% elsif product == blank %}
     {% liquid
       capture placeholder_image

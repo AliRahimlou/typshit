@@ -10,7 +10,7 @@ GraphQL-first TypeScript backend for a Shopify launch agent. V1 is focused on ca
 - Shopify app credentials, either:
   - a store Admin API access token, or
   - a Dev Dashboard app Client ID and Client Secret for the client-credentials grant
-- An OpenAI API key
+- An OpenAI API key for agent responses and local asset/image generation tasks
 
 This workspace currently defaults to Node 14, so use Node 18 before installing or running:
 
@@ -44,9 +44,15 @@ SHOPIFY_API_VERSION=2026-04
 OPENAI_API_KEY=sk-xxx
 OPENAI_MODEL=gpt-5.4
 ZENDROP_MCP_URL=https://app.zendrop.com/mcp/v1
+ZENDROP_OAUTH_AUTHORIZATION_URL=https://app.zendrop.com/mcp/oauth/authorize
+ZENDROP_OAUTH_TOKEN_URL=https://app.zendrop.com/mcp/oauth/token
+ZENDROP_OAUTH_REGISTRATION_URL=https://app.zendrop.com/mcp/oauth/register
 ZENDROP_CLIENT_ID=
 ZENDROP_ACCESS_TOKEN=
 ZENDROP_REFRESH_TOKEN=
+ZENDROP_CF_CLEARANCE=
+ZENDROP_COOKIE=
+ZENDROP_USER_AGENT=
 
 AGENT_BASE_URL=http://127.0.0.1:8080
 SHOPIFY_THEME_STORE=your-store.myshopify.com
@@ -54,6 +60,10 @@ SHOPIFY_THEME_ID=
 SHOPIFY_THEME_PATH=theme
 SHOPIFY_THEME_ALLOW_LIVE=0
 SHOPIFY_THEME_PUBLISH_ON_PUSH=0
+SHOPIFY_THEME_DEV_HOST=127.0.0.1
+SHOPIFY_THEME_DEV_PORT=9292
+SHOPIFY_THEME_DEV_OPEN=0
+SHOPIFY_THEME_STORE_PASSWORD=
 SHOPIFY_CLI_THEME_TOKEN=
 SHOPIFY_DEPLOY_ON_GIT_PUSH=0
 SHOPIFY_GIT_PUSH_REMOTE=origin
@@ -63,13 +73,38 @@ STORE_SYNC_ZENDROP_ASSETS=0
 
 For Dev Dashboard apps, this server can exchange `SHOPIFY_CLIENT_ID` and `SHOPIFY_CLIENT_SECRET` for a short-lived access token automatically. You won't see a permanent Admin token in the UI for that app model.
 
+`OPENAI_API_KEY` is required beyond text generation: the repo uses it for structured launch content, agent workflows, and any local regeneration of marketing assets like homepage hero images.
+
 For Zendrop MCP, this backend now supports a local OAuth bootstrap flow. Open `/zendrop/oauth/start`, complete Zendrop sign-in/approval, and the backend will dynamically register a public client, exchange the code with PKCE, and persist `ZENDROP_CLIENT_ID`, `ZENDROP_ACCESS_TOKEN`, and `ZENDROP_REFRESH_TOKEN` into `.env`.
 
+If Zendrop starts returning a Cloudflare challenge to server-to-server MCP requests, the backend now falls back to the known OAuth endpoints, sends the MCP protocol header on Zendrop requests, and reports the challenge explicitly through `/workflows/zendrop-status`. If your Zendrop account only works after a browser-cleared session, you can also provide `ZENDROP_COOKIE` or `ZENDROP_CF_CLEARANCE` with an optional `ZENDROP_USER_AGENT` in `.env` so the backend reuses that merchant session when calling Zendrop.
+
+Successful Zendrop media resolutions are now persisted locally in `.zendrop-media-cache.json`. The same cache also stores supplier description fields once a live catalog lookup succeeds, and `/workflows/zendrop-sync-linked-product-assets` now reuses both the cached media and the cached supplier copy before falling back to live Zendrop calls.
+
 ## Run
+
+For the full local dev stack, including the agent API and the live storefront preview on a local port, run:
+
+```bash
+npm start
+```
+
+This starts:
+
+- the agent API on `http://127.0.0.1:8080` by default
+- the storefront live preview on `http://127.0.0.1:9292` by default
+
+The storefront preview hot reloads theme edits through Shopify CLI, while the API server keeps the workflow and agent routes available locally.
+
+If either default port is already busy, the scripts automatically move to the next free local port and print the actual URLs they chose.
+
+If you only want the local API server, run:
 
 ```bash
 npm run dev
 ```
+
+`npm run site:dev` remains available and is the same full-stack startup as `npm start`.
 
 ## Automated Store Workflow
 
@@ -85,7 +120,9 @@ Available commands:
 - `npm run theme:list`: lists available Shopify themes so you can copy the correct `SHOPIFY_THEME_ID` into `.env`.
 - `npm run store:sync-data`: starts the local agent server if needed, creates any missing theme metaobject definitions, syncs launch storefront content, and prints launch readiness.
 - `npm run theme:push`: pushes the local `theme/` directory to `SHOPIFY_THEME_ID` with `--nodelete` so it can be used as a partial theme kit.
-- `npm run theme:preview`: runs `shopify theme dev` against the local `theme/` directory for preview work.
+- `npm run theme:preview`: runs `shopify theme dev` against the local `theme/` directory and serves a live preview on `http://127.0.0.1:9292` by default.
+- `npm start`: runs the local API server and the Shopify storefront preview together.
+- `npm run site:dev`: same as `npm start`.
 - `npm run store:deploy`: runs the data sync and then the theme push in one command.
 
 Notes:
@@ -95,9 +132,14 @@ Notes:
 - `SHOPIFY_THEME_ID` is required so pushes stay non-interactive and deterministic.
 - `SHOPIFY_THEME_ALLOW_LIVE=1` adds `--allow-live` to the push command when you intentionally want to target the live theme.
 - `SHOPIFY_THEME_PUBLISH_ON_PUSH=1` adds `--publish` if you want the CLI to publish the pushed theme version.
+- `SHOPIFY_THEME_DEV_HOST` and `SHOPIFY_THEME_DEV_PORT` control the local preview address used by `npm run theme:preview`.
+- `SHOPIFY_THEME_DEV_OPEN=1` auto-opens the preview in your browser when the preview command starts.
+- `SHOPIFY_THEME_STORE_PASSWORD` is optional and only needed if the storefront is password protected.
 - `SHOPIFY_CLI_THEME_TOKEN` is optional for local use, and also works for non-interactive local automation. Use a Theme Access password or an Admin API token.
+- `PORT`, `SHOPIFY_THEME_DEV_HOST`, and `SHOPIFY_THEME_DEV_PORT` define the preferred local URLs used by `npm start` and `npm run site:dev`.
 - `STORE_SYNC_ZENDROP_ASSETS=1` adds a Zendrop asset refresh during `store:sync-data`.
 - Theme commands use the repo-local Shopify CLI binary first, then fall back to a global `shopify` binary if you already have one installed.
+- `.zendrop-media-cache.json` is a local durability cache for resolved Zendrop product media plus cached supplier description fields and is intentionally gitignored.
 
 ## Local Git Push Deploys
 
